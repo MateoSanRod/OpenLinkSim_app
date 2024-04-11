@@ -1,0 +1,41 @@
+$ VARIABLES $
+
+l1 = 0.873
+l2 = 4.353
+l3 = 2.919
+l4 = 4.337
+l5 = 4.8
+l6 = 2
+dv = [2.448, 4.455]
+fxv = 6.5
+
+$ GEOMETRIC EQ $
+
+phi = indep_var
+phi_2, phi_3 = dep_var
+eq1 = l1 * np.cos(phi) + l2 * np.cos(phi_2) + l3 * np.cos(phi_3) - dv[0]
+eq2 = l1 * np.sin(phi) + l2 * np.sin(phi_2) - l3 * np.sin(phi_3) - dv[1]
+
+$ NODES $
+
+Node1:
+x1 = 0
+y1 = 0
+Node2:
+x2 = np.cos(phi) * l1
+y2 = np.sin(phi) * l1
+Node3:
+x3 = dv[0] - l3 * np.cos(phi_3)
+y3 = dv[1] + l3 * np.sin(phi_3)
+Node4:
+x4 = dv[0]
+y4 = dv[1]
+Node5:
+x5 = dv[0] + l4 * np.cos(-phi_3)
+y5 = dv[1] + l4 * np.sin(-phi_3)
+Node6:
+x6 = fxv
+y6 = y5 - l5 * np.sqrt(1 - (l5 ** -2) * (-l4 * np.cos(phi_3) - dv[0] + fxv) ** 2)
+Node7:
+x7 = x6
+y7 = y6 - l6

@@ -14,7 +14,7 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QFont, QPalette)
 from PySide6.QtWidgets import (QFrame, QGridLayout, QHBoxLayout,
                                QLayout, QMenu, QMenuBar,
                                QPlainTextEdit, QPushButton, QSplitter,
-                               QStatusBar, QVBoxLayout, QWidget)
+                               QStatusBar, QVBoxLayout, QWidget, QLabel)
 
 
 class Ui_MainWindow(object):
@@ -23,6 +23,7 @@ class Ui_MainWindow(object):
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(921, 636)
         self.mainwindow = MainWindow
+        self.mainwindow.resizeEvent = self.adjustWindowSize
         palette = QPalette()
         brush = QBrush(QColor(35, 35, 35, 255))
         brush.setStyle(Qt.SolidPattern)
@@ -39,11 +40,9 @@ class Ui_MainWindow(object):
         MainWindow.setStyleSheet(u"QWidget {\n"
                                  "    background-color: rgb(35, 35, 35);\n"
                                  "}\n"
-                                 "\n"
                                  "QMenuBar::item {\n"
                                  "    background-color: transparent;\n"
                                  "}\n"
-                                 "\n"
                                  "QMenuBar::item:selected {\n"
                                  "    background-color: #303030;\n"
                                  "}\n"
@@ -136,16 +135,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_3.addWidget(self.plainTextEdit)
 
-        self.preveiew_button = QPushButton(self.left_widget)
-        self.preveiew_button.setObjectName(u"preveiew_button")
-        self.preveiew_button.setGeometry(QRect(290, 520, 40, 40))
+        self.preview_button = QPushButton(self.left_widget)
+        self.preview_button.setObjectName(u"preveiew_button")
+        self.preview_button.setGeometry(QRect(290, 520, 40, 40))
         font = QFont()
-        font.setPointSize(24)
-        self.preveiew_button.setFont(font)
-        self.preveiew_button.setStyleSheet(u"QPushButton {\n"
+        font.setPointSize(22)
+        self.preview_button.setFont(font)
+        self.preview_button.setStyleSheet(u"QPushButton {\n"
                                            "        background-color: transparent;\n"
                                            "        border: none;\n"
                                            "        padding: 4px; \n"
+                                           "		 color: rgb(35, 35, 35);\n"
                                            "    }\n"
                                            "    QPushButton:hover {\n"
                                            "        color: #727272; /* Change text color on hover */\n"
@@ -254,110 +254,120 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 921, 22))
-        palette1 = QPalette()
-        brush1 = QBrush(QColor(0, 0, 0, 255))
-        brush1.setStyle(Qt.SolidPattern)
-        palette1.setBrush(QPalette.Active, QPalette.WindowText, brush1)
-        palette1.setBrush(QPalette.Active, QPalette.Button, brush)
-        brush2 = QBrush(QColor(255, 255, 255, 255))
-        brush2.setStyle(Qt.SolidPattern)
-        palette1.setBrush(QPalette.Active, QPalette.Light, brush2)
-        palette1.setBrush(QPalette.Active, QPalette.Midlight, brush2)
-        brush3 = QBrush(QColor(127, 127, 127, 255))
-        brush3.setStyle(Qt.SolidPattern)
-        palette1.setBrush(QPalette.Active, QPalette.Dark, brush3)
-        brush4 = QBrush(QColor(170, 170, 170, 255))
-        brush4.setStyle(Qt.SolidPattern)
-        palette1.setBrush(QPalette.Active, QPalette.Mid, brush4)
-        palette1.setBrush(QPalette.Active, QPalette.Text, brush1)
-        palette1.setBrush(QPalette.Active, QPalette.BrightText, brush2)
-        palette1.setBrush(QPalette.Active, QPalette.ButtonText, brush1)
-        palette1.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette1.setBrush(QPalette.Active, QPalette.Window, brush)
-        palette1.setBrush(QPalette.Active, QPalette.Shadow, brush1)
-        palette1.setBrush(QPalette.Active, QPalette.AlternateBase, brush2)
-        brush5 = QBrush(QColor(255, 255, 220, 255))
-        brush5.setStyle(Qt.SolidPattern)
-        palette1.setBrush(QPalette.Active, QPalette.ToolTipBase, brush5)
-        palette1.setBrush(QPalette.Active, QPalette.ToolTipText, brush1)
-        brush6 = QBrush(QColor(0, 0, 0, 127))
-        brush6.setStyle(Qt.SolidPattern)
-        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette1.setBrush(QPalette.Active, QPalette.PlaceholderText, brush6)
-        # endif
-        palette1.setBrush(QPalette.Active, QPalette.Accent, brush2)
-        palette1.setBrush(QPalette.Inactive, QPalette.WindowText, brush1)
-        palette1.setBrush(QPalette.Inactive, QPalette.Button, brush)
-        palette1.setBrush(QPalette.Inactive, QPalette.Light, brush2)
-        palette1.setBrush(QPalette.Inactive, QPalette.Midlight, brush2)
-        palette1.setBrush(QPalette.Inactive, QPalette.Dark, brush3)
-        palette1.setBrush(QPalette.Inactive, QPalette.Mid, brush4)
-        palette1.setBrush(QPalette.Inactive, QPalette.Text, brush1)
-        palette1.setBrush(QPalette.Inactive, QPalette.BrightText, brush2)
-        palette1.setBrush(QPalette.Inactive, QPalette.ButtonText, brush1)
-        palette1.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette1.setBrush(QPalette.Inactive, QPalette.Window, brush)
-        palette1.setBrush(QPalette.Inactive, QPalette.Shadow, brush1)
-        palette1.setBrush(QPalette.Inactive, QPalette.AlternateBase, brush2)
-        palette1.setBrush(QPalette.Inactive, QPalette.ToolTipBase, brush5)
-        palette1.setBrush(QPalette.Inactive, QPalette.ToolTipText, brush1)
-        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette1.setBrush(QPalette.Inactive, QPalette.PlaceholderText, brush6)
-        # endif
-        palette1.setBrush(QPalette.Inactive, QPalette.Accent, brush2)
-        palette1.setBrush(QPalette.Disabled, QPalette.WindowText, brush3)
-        palette1.setBrush(QPalette.Disabled, QPalette.Button, brush)
-        palette1.setBrush(QPalette.Disabled, QPalette.Light, brush2)
-        palette1.setBrush(QPalette.Disabled, QPalette.Midlight, brush2)
-        palette1.setBrush(QPalette.Disabled, QPalette.Dark, brush3)
-        palette1.setBrush(QPalette.Disabled, QPalette.Mid, brush4)
-        palette1.setBrush(QPalette.Disabled, QPalette.Text, brush3)
-        palette1.setBrush(QPalette.Disabled, QPalette.BrightText, brush2)
-        palette1.setBrush(QPalette.Disabled, QPalette.ButtonText, brush3)
-        palette1.setBrush(QPalette.Disabled, QPalette.Base, brush)
-        palette1.setBrush(QPalette.Disabled, QPalette.Window, brush)
-        palette1.setBrush(QPalette.Disabled, QPalette.Shadow, brush1)
-        palette1.setBrush(QPalette.Disabled, QPalette.AlternateBase, brush2)
-        palette1.setBrush(QPalette.Disabled, QPalette.ToolTipBase, brush5)
-        palette1.setBrush(QPalette.Disabled, QPalette.ToolTipText, brush1)
-        brush7 = QBrush(QColor(127, 127, 127, 127))
-        brush7.setStyle(Qt.SolidPattern)
-        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette1.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush7)
-        # endif
-        palette1.setBrush(QPalette.Disabled, QPalette.Accent, brush2)
-        self.menubar.setPalette(palette1)
+        height = 9
+        self.menubar.setStyleSheet("QMenuBar {\n"
+                                   "    color: white;\n"
+                                   "}\n"
+                                   "\n"
+                                   "QMenuBar::item {\n"
+                                   f"    padding: {height}px 10px; /* Padding for each menu item */\n"
+                                   "    background-color: transparent; /* Background color of each menu item */\n"
+                                   "}\n"
+                                   "\n"
+                                   "QMenuBar::item:selected {\n"
+                                   "    background-color: rgb(48, 48, 48); /* Background color when menu item is hover */\n"
+                                   "    padding: 0px; /* Remove padding */\n"
+                                   "}\n"
+                                   "\n"
+                                   "QMenuBar::item:pressed {\n"
+                                   "    background-color: rgb(114, 114, 114); /* Background color when menu item is pressed */\n"
+                                   "}\n"
+                                   "\n"
+                                   "QMenu {\n"
+                                   "    background-color: red; /* Background color of drop-down menus */\n"
+                                   "    color: blue; /* Text color of drop-down menus */\n"
+                                   "    border: 0px solid #333; /* Border of drop-down menus */\n"
+                                   "}\n"
+                                   "\n"
+                                   "QMenu::item {\n"
+                                   "    background-color: transparent; /* Background color of each item in drop-down menus */\n"
+                                   "}\n"
+                                   "\n"
+                                   "QMenu::item:selected {\n"
+                                   "    background-color: #555; /* Background color when item in drop-down menu is selected */\n"
+                                   "}\n"
+                                   "\n"
+                                   "QMenu::separator {\n"
+                                   "    background-color: #666; /* Color of separator lines in drop-down menus */\n"
+                                   "    height: 1px; /* Height of separator lines */\n"
+                                   "}\n"
+                                   )
+        self.menubar_height = self.menubar.height() + height - 3
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
+        font = self.menuFile.font()
+        font.setPointSize(8)
+        self.menuFile.setFont(font)
+
         self.menuEdit = QMenu(self.menubar)
         self.menuEdit.setObjectName(u"menuEdit")
+
+        self.render_button = QPushButton(self.menubar)
+        self.render_button.setObjectName(u"render_button")
+        self.render_button.setText("\u2637")
+        self.render_button.setGeometry(QRect(80, 0, self.menubar_height, self.menubar_height))
+        self.render_button.setStyleSheet(u"QPushButton {\n"
+                                         "        background-color: transparent;\n"
+                                         "        border: none;\n"
+                                         "		 color: #727272;\n"
+                                         "    }\n"
+                                         "    QPushButton:hover {\n"
+                                         "        color: white; /* Change text color on hover */\n"
+                                         "    }\n"
+                                         "    QPushButton:pressed {\n"
+                                         "        background-color: rgb(190, 190, 190);\n"
+                                         "        color: rgb(35, 35, 35); /* Change text color when pressed */\n"
+                                         "    }\n"
+                                         "")
+        self.ani_speed_label = QLabel(self.menubar)
+        self.ani_speed_label.setGeometry(QRect(500, 0, self.menubar_height * 2.8, self.menubar_height))
+        font = QFont()
+        font.setPointSize(10)
+        self.ani_speed_label.setFont(font)
+        self.ani_speed_label.setText("")
+        self.ani_speed_label.setAlignment(Qt.AlignCenter)
+        self.ani_speed_label.setStyleSheet(u"QLabel {\n"
+                                           "        color: rgb(48, 48, 48);\n"
+                                           "}\n"
+                                           "")
+        self.playstop_button = QPushButton(self.menubar)
+        self.playstop_button.setObjectName(u"PlayStop_button")
+        font = QFont()
+        font.setPointSize(20)
+        self.control_buttons_width = self.menubar.height() * 1.25
+        self.playstop_button.setFont(font)
+        self.playstop_button.setText("\u25BA")
+        self.playstop_button.setGeometry(QRect(0, 0, self.control_buttons_width, self.menubar_height))
+        self.forwards_button = QPushButton(self.menubar)
+        self.forwards_button.setObjectName(u"play_button")
+        font = QFont()
+        font.setPointSize(14)
+        self.forwards_button.setFont(font)
+        self.forwards_button.setText(">>")
+        # self.forwards_button.setText(">>")
+        self.forwards_button.setGeometry(QRect(0, 0, self.control_buttons_width, self.menubar_height))
+        self.backwards_button = QPushButton(self.menubar)
+        self.backwards_button.setObjectName(u"play_button")
+        self.backwards_button.setFont(font)
+        self.backwards_button.setText("<<")
+        self.backwards_button.setGeometry(QRect(0, 0, self.control_buttons_width, self.menubar_height))
+        self.playstop_button.setStyleSheet(u"QPushButton {\n"
+                                           "        background-color: transparent;\n"
+                                           "        border: none;\n"
+                                           "        padding: none; \n"
+                                           "		 color: rgb(48, 48, 48);\n"
+                                           "    }\n"
+                                           "    QPushButton:pressed {\n"
+                                           "        color: rgb(114, 114, 114); /* Change text color when pressed */\n"
+                                           "    }\n"
+                                           "")
+        self.forwards_button.setStyleSheet(self.playstop_button.styleSheet())
+        self.backwards_button.setStyleSheet(self.playstop_button.styleSheet())
+
         MainWindow.setMenuBar(self.menubar)
+
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
-        palette2 = QPalette()
-        brush8 = QBrush(QColor(135, 135, 135, 255))
-        brush8.setStyle(Qt.SolidPattern)
-        palette2.setBrush(QPalette.Active, QPalette.WindowText, brush8)
-        palette2.setBrush(QPalette.Active, QPalette.Button, brush)
-        palette2.setBrush(QPalette.Active, QPalette.Text, brush2)
-        palette2.setBrush(QPalette.Active, QPalette.ButtonText, brush2)
-        palette2.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette2.setBrush(QPalette.Active, QPalette.Window, brush)
-        palette2.setBrush(QPalette.Active, QPalette.ToolTipText, brush8)
-        palette2.setBrush(QPalette.Inactive, QPalette.WindowText, brush8)
-        palette2.setBrush(QPalette.Inactive, QPalette.Button, brush)
-        palette2.setBrush(QPalette.Inactive, QPalette.Text, brush2)
-        palette2.setBrush(QPalette.Inactive, QPalette.ButtonText, brush2)
-        palette2.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette2.setBrush(QPalette.Inactive, QPalette.Window, brush)
-        palette2.setBrush(QPalette.Inactive, QPalette.HighlightedText, brush2)
-        palette2.setBrush(QPalette.Inactive, QPalette.ToolTipText, brush8)
-        palette2.setBrush(QPalette.Disabled, QPalette.Button, brush)
-        palette2.setBrush(QPalette.Disabled, QPalette.Base, brush)
-        palette2.setBrush(QPalette.Disabled, QPalette.Window, brush)
-        palette2.setBrush(QPalette.Disabled, QPalette.ToolTipText, brush8)
-        self.statusbar.setPalette(palette2)
         MainWindow.setStatusBar(self.statusbar)
 
         self.menubar.addAction(self.menuFile.menuAction())
@@ -370,22 +380,36 @@ class Ui_MainWindow(object):
 
         QMetaObject.connectSlotsByName(MainWindow)
 
-    # setupUi
+        # setupUi
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.action1.setText(QCoreApplication.translate("MainWindow", u"1", None))
         self.action2.setText(QCoreApplication.translate("MainWindow", u"2", None))
         self.action3.setText(QCoreApplication.translate("MainWindow", u"3", None))
-        self.preveiew_button.setText(QCoreApplication.translate("MainWindow", u"\U0001F733", None))
+        self.preview_button.setText(QCoreApplication.translate("MainWindow", u"\U0001F733", None))
         self.left_splitter_button.setText("")
         self.right_splitter_button.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("MainWindow", u"Edit", None))
 
-    # retranslateUi
     def adjustFrameSize(self, event):
         self.frame.setGeometry(QRect(0, 0, self.left_widget.width(), self.left_widget.height()))
-        self.preveiew_button.setGeometry(QRect(self.left_widget.width() - self.preveiew_button.width() - 13
-                                               , self.left_widget.height() - self.preveiew_button.height() - 5
-                                               , self.preveiew_button.width(), self.preveiew_button.height()))
+        self.preview_button.setGeometry(QRect(self.left_widget.width() - self.preview_button.width() - 13
+                                              , self.left_widget.height() - self.preview_button.height() - 5
+                                              , self.preview_button.width(), self.preview_button.height()))
+
+    def adjustWindowSize(self, event):
+        self.ani_speed_label.setGeometry(
+            QRect(self.menubar.width() - self.ani_speed_label.width(), 0, self.ani_speed_label.width(),
+                  self.menubar_height))
+        self.forwards_button.setGeometry(
+            QRect(self.menubar.width() - self.ani_speed_label.width() - self.control_buttons_width, 0,
+                  self.control_buttons_width, self.menubar_height))
+        self.playstop_button.setGeometry(
+            QRect(self.menubar.width() - self.ani_speed_label.width() - self.control_buttons_width * 2, 0,
+                  self.control_buttons_width,
+                  self.menubar_height))
+        self.backwards_button.setGeometry(
+            QRect(self.menubar.width() - self.ani_speed_label.width() - self.control_buttons_width * 3, 0,
+                  self.control_buttons_width, self.menubar_height))

@@ -28,11 +28,12 @@ class ViewWidgetPlot(QWidget):
         self.is_first_plot = True
         self.current_frame = 0
 
-        self.controller = ViewPlotController(self)
+        self.controller = ViewPlotController(self, app)
         self.ax = self.figure.gca()
         self._blanck_plot()
 
     def _blanck_plot(self):
+        self.figure.clear()
         self.ax = self.figure.gca()
         x_limits = self.ax.get_xlim()
         y_limits = self.ax.get_ylim()
@@ -50,6 +51,8 @@ class ViewWidgetPlot(QWidget):
         self.links, = self.ax.plot([], [], color='darkgray', linestyle='-', linewidth=2.5, zorder=3)
 
     def plot_image(self, data):
+        self._blanck_plot()
+        self._destroy_previous_animation()
         self.simulation_data = data
         self._set_first_plot_limits(data)
         self._destroy_previous_animation()
@@ -79,13 +82,14 @@ class ViewWidgetPlot(QWidget):
                 self.links_cg.set_offsets(np.column_stack([data['cg_global_cord'][:, 0], data['cg_global_cord'][:, 1]]))
 
         update_list = [self.nodes, self.links, self.links_cg]
-        self.current_frame += self.frame_jump
 
+        if not self.play_one_frame:
+            self.current_frame += self.frame_jump
         if self.current_frame >= len(self.simulation_data) - 1:
             self.current_frame = 0
-            # print(f'loop time -> {time.time() - self.base_time:.2f})', f'target ->{self.ani_run_time:.2f}',
-            #       f'\n!!error!!{((time.time() - self.base_time) / (self.ani_run_time) - 1) * 100: .2f}%',
-            #       '\n' + '-' * 20)
+            print(f'loop time -> {time.time() - self.base_time:.2f})', f'target ->{self.ani_run_time:.2f}',
+                  f'\n!!error!!{((time.time() - self.base_time) / (self.ani_run_time) - 1) * 100: .2f}%',
+                  '\n' + '-' * 20)
 
             self.base_time = time.time()
         return update_list
@@ -103,29 +107,86 @@ class ViewWidgetPlot(QWidget):
         indices = np.where(indep_vars == self.input.init_indep_var)[0]
         self.current_frame = indices[0] if indices.size > 0 else 0
 
-        len_data = len(indep_vars)
-        target_fps = 100
+        self.len_data = len(indep_vars)
+        self.target_fps = 150
         v_ang = 1
-        self.ani_run_time = len_data * (((2 * np.pi) / v_ang) / (360 * 30))
+        resolution = 10
+        self.ani_run_time = self.len_data * (((2 * np.pi) / v_ang) / (360 * resolution))
 
-        frame_jump = len_data / (self.ani_run_time * target_fps)
+        frame_jump = self.len_data / (self.ani_run_time * self.target_fps)
         self.frame_jump = math.ceil(frame_jump) if frame_jump > 1 else 1
 
         self.interval_corrector = (frame_jump / self.frame_jump)
-        self.interval = (1000 / target_fps) / self.interval_corrector
+        self.interval = (1000 / self.target_fps) / self.interval_corrector
 
-        # print('-' * 20)
-        # print(f'{self.ani_run_time:.3f}', 'animation runtime')
-        # print(f'{frame_jump:.2f}',self.frame_jump, 'frame jump')
-        # print(f'{len_data / self.frame_jump:.2f}', 'frames to plot')
-        # print(f'{self.interval_corrector:.3f}', '<-- corrector | interval -->', f'{self.interval:.3f}')
-        # print('-' * 20)
+        print('-' * 20)
+        print(f'{self.ani_run_time:.3f}', 'animation runtime')
+        print(f'{frame_jump:.2f}', self.frame_jump, 'frame jump')
+        print(f'{self.len_data / self.frame_jump:.2f}', 'frames to plot')
+        print(f'{self.interval_corrector:.3f}', '<-- corrector | interval -->', f'{self.interval:.3f}')
+        print('-' * 20)
 
+        self.play_one_frame = False
         self.elapsed_time = time.time()
         self.base_time = time.time()
         self.ani = FuncAnimation(self.figure, self.update, frames=range(0, len(self.simulation_data)),
                                  blit=True, interval=self.interval,
                                  cache_frame_data=False)
+        self.ani.running = True
+        self.ani.speed = 1.0
+
+    def steep_forward_animation(self):
+        frame_steep = 10 * self.frame_jump
+        if self.current_frame < self.len_data - frame_steep:
+            self.current_frame += frame_steep
+            self.ani.running = False
+            self.play_one_frame = True
+            self.ani.event_source.start()
+            self.update(self.current_frame)
+        else:
+            self.current_frame = self.current_frame - self.len_data + frame_steep
+            self.ani.running = False
+            self.play_one_frame = True
+            self.ani.event_source.start()
+            self.update(self.current_frame)
+
+    def steep_backward_animation(self):
+        frame_steep = 10 * self.frame_jump
+        if self.current_frame > self.frame_jump:
+            self.current_frame -= frame_steep
+            self.ani.running = False
+            self.play_one_frame = True
+            self.ani.event_source.start()
+            self.update(self.current_frame)
+        else:
+            self.current_frame = self.len_data - 1 - self.current_frame
+            self.current_frame -= frame_steep
+            self.ani.running = False
+            self.play_one_frame = True
+            self.ani.event_source.start()
+            self.update(self.current_frame)
+
+    def speed_up_animation(self):
+        if self.ani.speed > 10000:
+            return
+        self.ani.speed /= 0.5
+        self.ani_run_time *= 0.5
+        frame_jump = self.len_data / (self.ani_run_time * self.target_fps)
+        self.frame_jump = math.ceil(frame_jump) if frame_jump > 1 else 1
+
+        self.interval_corrector = (frame_jump / self.frame_jump)
+        self.ani._interval = (1000 / self.target_fps) / self.interval_corrector
+
+    def slow_down_animation(self):
+        if self.ani.speed < 0.001:
+            return
+        self.ani.speed /= 2
+        self.ani_run_time *= 2
+        frame_jump = self.len_data / (self.ani_run_time * self.target_fps)
+        self.frame_jump = math.ceil(frame_jump) if frame_jump > 1 else 1
+
+        self.interval_corrector = (frame_jump / self.frame_jump)
+        self.ani._interval = (1000 / self.target_fps) / self.interval_corrector
 
     def _destroy_previous_animation(self):
         if hasattr(self, 'ani'):

@@ -5,14 +5,14 @@ from PySide6 import QtWidgets as qtw
 from PySide6.QtWidgets import QMainWindow
 
 from Controler.app_controller import AppController
-from Controler.input import Input
+from Controler.input_compiler import Input
 from UI.UI_utils.Test_splitter import SplitterWithButton
 from UI.UI_utils.theme_manager import ThemeManager
 from app_test.UI.test_ui import Ui_MainWindow
 from view.view_widget_plot import ViewWidgetPlot
 
-# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_base.txt').read_text()
-txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_links.txt').read_text()
+txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_base.txt').read_text()
+# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_links.txt').read_text()
 
 
 class MainApp(QMainWindow):

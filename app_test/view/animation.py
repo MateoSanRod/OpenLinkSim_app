@@ -59,7 +59,8 @@ class TimedAnimation(Animation):
 
         still_going = super()._step(*args)
         elapsed_time = ((time.time() - self.time) * 1000) - self.event_source.interval
-        self.event_source.interval = self._interval - (elapsed_time) * .95
+        # print(f'{elapsed_time:.2f}ms')
+        self.event_source.interval = self._interval - (elapsed_time) * .91
         self.time = time.time()
 
         if not still_going:

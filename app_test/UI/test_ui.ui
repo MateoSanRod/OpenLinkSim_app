@@ -996,14 +996,35 @@ QPushButton:pressed {
      <string>Edit</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="render">
+    <property name="toolTip">
+     <string comment="Compute simulation"/>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
     <property name="title">
-     <string>🀰</string>
+     <string notr="true">☷</string>
+    </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuplay">
+    <property name="title">
+     <string>play</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menustop">
+    <property name="title">
+     <string>stop</string>
     </property>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
-   <addaction name="menu"/>
+   <addaction name="render"/>
+   <addaction name="menuplay"/>
+   <addaction name="menustop"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="palette">

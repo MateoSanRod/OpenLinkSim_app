@@ -6,7 +6,7 @@ from test_utils.timer import get_time
 
 
 class Simulation:
-    def __init__(self, compiled_input, v_angular=0.5, resolution=30):
+    def __init__(self, compiled_input, v_angular=0.5, resolution=10):
         self.input = compiled_input
         self.resolution = resolution
         self.v_angular = v_angular

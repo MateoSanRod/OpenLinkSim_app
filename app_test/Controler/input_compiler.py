@@ -123,8 +123,8 @@ class Input(object):
             self.link_dict.update({f'Link{index + 1}': {key: value for key, value in zip(link_keys, link_values)}})
 
 
-def __add__(self, other) -> None:
-    self.input_multiline_string += self.other.input_multiline_string
+    def __add__(self, other) -> None:
+        self.input_multiline_string += self.other.input_multiline_string
 
 
 if __name__ == '__main__':

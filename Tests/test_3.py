@@ -2,7 +2,7 @@ import time
 import numpy as np
 import scipy.optimize as sp_optimize
 
-from app_test.Controler.input import Input
+from app_test.Controler.input_compiler import Input
 from app_test.Model.link import Link
 
 class Simulation:

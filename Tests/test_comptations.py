@@ -1,13 +1,70 @@
+import sys
+from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QMenuBar
+from PySide6.QtGui import (QAction, QBrush, QColor, QFont, QPalette)
 
-c1 = 1 / 2 * (1 - 0.774596697) * (1) + 1 / 2 * (1 + 0.774596697) * 4
-c2 = 1 / 2 * (1 + 0.774596697) * (1) + 1 / 2 * (1 - 0.774596697) * 4
-c3 = 1 / 2 * (1 + 0) * (1) + 1 / 2 * (1 - 0) * 4
-print([f'{i:.8f}' for i in [c1, c2, c3]])
-# for i i
-a = c1 ** 4 - 4 * c1 ** 3 + 2 * c1 + 5
-b = c2 ** 4 - 4 * c2 ** 3 + 2 * c2 + 5
-c = c3 ** 4 - 4 * c3 ** 3 + 2 * c3 + 5
-print([f'{i:.8f}' for i in [a, b, c]])
-div = (4-1)/2
-res = a * 0.5555555555555 * div + b * 0.5555555555555 * div + c * 0.88888888888888 * div
-print(f'{res: .9f}')
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Blank Application")
+        self.setGeometry(100, 100, 600, 400)
+
+        menubar = self.menuBar()
+        menubar.setStyleSheet("""
+                                QMenuBar {
+                                    background-color: #333; /* Background color */
+                                    color: red; /* Text color */
+                                }
+
+                                QMenuBar::item {
+                                    spacing: 6px; /* Spacing between menu items */
+                                    padding: 40px 10px; /* Padding for each menu item */
+                                    background-color: transparent; /* Background color of each menu item */
+                                }
+
+                                QMenuBar::item:selected {
+                                    background-color: #555; /* Background color when menu item is selected */
+                                }
+
+                                QMenuBar::item:pressed {
+                                    background-color: #777; /* Background color when menu item is pressed */
+                                }
+
+                                QMenu {
+                                    background-color: #444; /* Background color of drop-down menus */
+                                    color: white; /* Text color of drop-down menus */
+                                    border: 1px solid #333; /* Border of drop-down menus */
+                                }
+
+                                QMenu::item {
+                                    background-color: transparent; /* Background color of each item in drop-down menus */
+                                }
+
+                                QMenu::item:selected {
+                                    background-color: #555; /* Background color when item in drop-down menu is selected */
+                                }
+
+                                QMenu::separator {
+                                    background-color: #666; /* Color of separator lines in drop-down menus */
+                                    height: 1px; /* Height of separator lines */
+                                }
+                                """
+                              )
+
+        fileMenu = menubar.addMenu('&File')
+
+        exitAction = QAction('&Exit', self)
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.triggered.connect(self.close)
+
+        fileMenu.addAction(exitAction)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    mainWindow = MainWindow()
+    mainWindow.show()
+    sys.exit(app.exec())

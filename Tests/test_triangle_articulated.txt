@@ -1,0 +1,52 @@
+$ VARIABLES $
+
+l1 = 1
+l2 = 3
+dis = 0
+
+$ GEOMETRIC EQ $
+
+phi = indep_var
+v_x1, v_x2, v_y1, v_y2 = dep_var
+
+eq1 = v_x1 - l1*np.cos(phi)
+eq2 = v_y1 - l1*np.sin(phi)
+eq3 = (v_x1 - v_x2)**2 + (v_y1 - v_y2)**2 - l2**2
+eq4 = v_y2 - dis
+
+$ INITIAL CONDITIONS $
+
+Position:
+phi = 0
+v_x1, v_x2, v_y1, v_y2= [0, 0, 0, 0]
+
+Input speed:
+phi = 0.5
+
+Input type:
+phi = R
+
+$ NODES $
+
+Node1:
+x1 = 0
+y1 = 0
+Node2:
+x2 = v_x1
+y2 = v_y1
+Node3:
+x2 = v_x2
+y2 = v_y2
+
+$ LINKS $
+
+Link1:
+connections = [1, 2]
+length = l1
+cg = [l1/2,0]
+driven_by = phi
+
+Link2:
+connections = [2, 3]
+length = l2
+cg = [l2/2,0]

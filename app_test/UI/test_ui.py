@@ -319,17 +319,38 @@ class Ui_MainWindow(object):
                                          "        color: rgb(35, 35, 35); /* Change text color when pressed */\n"
                                          "    }\n"
                                          "")
-        self.ani_speed_label = QLabel(self.menubar)
+        self.ani_speed_label = QPushButton(self.menubar)
         self.ani_speed_label.setGeometry(QRect(500, 0, self.menubar_height * 2.8, self.menubar_height))
         font = QFont()
         font.setPointSize(10)
         self.ani_speed_label.setFont(font)
         self.ani_speed_label.setText("")
-        self.ani_speed_label.setAlignment(Qt.AlignCenter)
-        self.ani_speed_label.setStyleSheet(u"QLabel {\n"
-                                           "        color: rgb(48, 48, 48);\n"
-                                           "}\n"
-                                           "")
+        # self.ani_speed_label.setAlignment(Qt.AlignCenter)
+        self.ani_speed_label.setStyleSheet(u"QPushButton {\n"
+                                         "        background-color: transparent;\n"
+                                         "        border: none;\n"
+                                         "		 color: #727272;\n"
+                                         "    }\n"
+                                         "    QPushButton:hover {\n"
+                                         "        color: white; /* Change text color on hover */\n"
+                                         "    }\n"
+                                         "    QPushButton:pressed {\n"
+                                         "        background-color: rgb(190, 190, 190);\n"
+                                         "        color: rgb(35, 35, 35); /* Change text color when pressed */\n"
+                                         "    }\n"
+                                         "")
+
+        # self.ani_speed_label = QLabel(self.menubar)
+        # self.ani_speed_label.setGeometry(QRect(500, 0, self.menubar_height * 2.8, self.menubar_height))
+        # font = QFont()
+        # font.setPointSize(10)
+        # self.ani_speed_label.setFont(font)
+        # self.ani_speed_label.setText("")
+        # self.ani_speed_label.setAlignment(Qt.AlignCenter)
+        # self.ani_speed_label.setStyleSheet(u"QLabel {\n"
+        #                                    "        color: rgb(48, 48, 48);\n"
+        #                                    "}\n"
+        #                                    "")
         self.playstop_button = QPushButton(self.menubar)
         self.playstop_button.setObjectName(u"PlayStop_button")
         font = QFont()

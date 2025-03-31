@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from view.animation import FuncAnimation
 
-from app_test.Controler.view_controller import ViewPlotController
+# from app_test.Controler.view_controller import ViewPlotController
 
 
 class ViewWidgetPlot(QWidget):
@@ -16,7 +16,7 @@ class ViewWidgetPlot(QWidget):
         self.app = app
         self.input = self.app.input
         self.figure = plt.figure()
-        self.canvas = FigureCanvasQTAgg(self.figure)
+        self.canvas =   FigureCanvasQTAgg(self.figure)
         layout = QVBoxLayout()
         layout.addWidget(self.canvas)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -28,7 +28,7 @@ class ViewWidgetPlot(QWidget):
         self.is_first_plot = True
         self.current_frame = 0
 
-        self.controller = ViewPlotController(self, app)
+#         self.controller = ViewPlotController(self, app)
         self.ax = self.figure.gca()
         self._blanck_plot()
 

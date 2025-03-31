@@ -1,6 +1,6 @@
 $ VARIABLES $
 
-l1 = 1
+l1 = 4.5
 l2 = 4
 l3 = 3.5
 fxv = 3.5
@@ -14,8 +14,15 @@ eq2 = l1 * np.sin(phi) + l2 * np.sin(phi_2) - l3 * np.sin(phi_3)
 
 $ INITIAL CONDITIONS $
 
+Position:
 phi = 0
 phi_2, phi_3 = [1,0]
+
+Input speed:
+phi = 0.5
+
+Input type:
+phi = [R,P]
 
 $ NODES $
 

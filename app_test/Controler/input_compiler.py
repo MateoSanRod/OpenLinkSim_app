@@ -4,11 +4,15 @@ from pathlib import Path
 import numpy as np
 
 class Input(object):
-    def __init__(self, app):
+    def __init__(self, app,txt = None):
         self.app = app
-
+        self.txt = txt
+        self.delta_time = None
     def compile(self):
-        self.input_multiline_string = self.app.ui.plainTextEdit.toPlainText()
+        if self.txt == None:
+            self.input_multiline_string = self.app.ui.plainTextEdit.toPlainText()
+        else:
+            self.input_multiline_string = self.txt
         self.compile_constants()
         self.substitute_constants()
         self.compile_geometric_eqs()
@@ -52,10 +56,30 @@ class Input(object):
         init_cond_match = init_cond_flags.search(self.input_multiline_string)
         init_cond_input = init_cond_match.group(1).strip() if init_cond_match else ""
 
-        indep_var_str = ''.join(re.findall(rf'{self.independent_variables}\s*=\s*(.*)', init_cond_input))
-        dep_var_str = ''.join(re.findall(rf'{self.dependent_variables}\s*=\s*(.*)', init_cond_input))
-        self.init_indep_var = None if indep_var_str == '' else np.deg2rad(eval(indep_var_str))
-        self.init_dep_var = None if dep_var_str == '' else np.deg2rad(eval(dep_var_str))
+        position_flags = re.compile(r'Position:\s*([\s\S]*?)(?=:|\Z)')
+        position_match = position_flags.search(init_cond_input)
+        position_cond_input = position_match.group(1).strip() if position_match else ""
+        position_indep_var_str = ''.join(re.findall(rf'{self.independent_variables}\s*=\s*(.*)', position_cond_input))
+        position_dep_var_str = ''.join(re.findall(rf'{self.dependent_variables}\s*=\s*(.*)', position_cond_input))
+        self.init_indep_var = None if position_indep_var_str == '' else np.deg2rad(eval(position_indep_var_str))
+        self.init_dep_var = None if position_dep_var_str == '' else np.deg2rad(eval(position_dep_var_str))
+        print(self.independent_variables,"indep_var")
+        print(self.dependent_variables,"dep_var")
+
+        speed_flags = re.compile(r'Input speed:\s*([\s\S]*?)(?=:|\Z)')
+        speed_match = speed_flags.search(init_cond_input)
+        speed_cond_input = speed_match.group(1).strip() if speed_match else ""
+        speed_indep_var_str = ''.join(re.findall(rf'{self.independent_variables}\s*=\s*(.*)', speed_cond_input))
+        self.speed_indep_var = None if speed_indep_var_str == '' else eval(speed_indep_var_str)
+        print(speed_cond_input)
+        print(speed_indep_var_str)
+
+        type_flags = re.compile(r'Input type:\s*([\s\S]*?)(?=:|\Z)')
+        type_match = type_flags.search(init_cond_input)
+        type_cond_input = type_match.group(1).strip() if type_match else ""
+        type_indep_var_str = ''.join(re.findall(rf'{self.independent_variables}\s*=\s*(.*)', type_cond_input))
+        self.type_indep_var = None if type_indep_var_str == '' else type_indep_var_str
+        print(type_indep_var_str)
 
 
     def compile_nodes(self):
@@ -129,7 +153,7 @@ class Input(object):
 
 if __name__ == '__main__':
 
-    app = MagicMock()
+
     input_obj = Input(app)
     input_obj.input_multiline_string = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_links.txt').read_text()
     input_obj.compile_constants()

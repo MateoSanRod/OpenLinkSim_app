@@ -9,7 +9,7 @@ class AppController(QObject):
         super().__init__()
         self.app = app
         self.ui = app.ui
-        self.view = app.plot_widget
+        self.view = app.opengl_widget
         self.input = app.input
         self.status_bar = self.ui.statusbar  # Accessing the status bar
         self.global_key_actions = {
@@ -63,10 +63,10 @@ class AppController(QObject):
     def _update_status_bar(self, message):
         self.status_bar.showMessage(message)
 
-    def _handle_preview_button(self, event):
+    def _handle_preview_button(self):
         self.input.compile()
         run_image(self.app, self.view, self.input)
 
-    def _handle_render_button(self, event):
+    def _handle_render_button(self):
         self.input.compile()
         run_simulation(self.app, self.view, self.input)

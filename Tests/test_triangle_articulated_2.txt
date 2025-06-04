@@ -2,9 +2,9 @@ $ VARIABLES $
 
 l2 = 0.075
 l3 = 0.17
-gamma = 4.71239
+gamma = 0
 dy = 0.0
-piston = 0.05
+piston = 0.025
 
 $ GEOMETRIC EQ $
 
@@ -36,17 +36,33 @@ Node3:
 x3 = s*cos(gamma)
 y3 = s*sin(gamma) + dy
 
+Node4:
+x4 = (s-piston)*cos(gamma)
+y4 = (s-piston)*sin(gamma) + dy
+
+Node4:
+x4 = (s+piston)*cos(gamma)
+y4 = (s+piston)*sin(gamma) + dy
+
+
 $ LINKS $
 
 Link1:
 connections = [1, 2]
 cg = [0.03457, 0]
-mass = 0.6
+mass = 1
 inertia = 0.00014791
 driven_by = phi
 
 Link2:
 connections = [2, 3]
-cg = [0.085, 0]
-mass = 0.2795
+cg = [0.08, 0]
+mass = 0.25
 inertia = 0.0075330
+
+Link3:
+connections = [4, 3, 5]
+cg = [piston, 0]
+mass = 10
+inertia = 0.0075330
+prismatic = 3,0

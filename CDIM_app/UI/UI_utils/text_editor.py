@@ -12,8 +12,8 @@ class SyntaxHighlighter(QPlainTextEdit):
 
     def setup_default_highlighting(self):
         keyword_format = QTextCharFormat()
-        keyword_format.setForeground(QColor("#AA0000"))  # Red color
-        keywords = ["if", "else", "for", "while"]  # Example keywords
+        keyword_format.setForeground(QColor("#AA0000"))
+        keywords = ["if", "else", "for", "while"]
         for word in keywords:
             pattern = rf"\b{word}\b"
             rule = (pattern, keyword_format)

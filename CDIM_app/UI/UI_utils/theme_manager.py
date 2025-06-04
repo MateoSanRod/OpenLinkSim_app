@@ -112,11 +112,11 @@ class ThemeManager:
                 "node-color": [0, 0, 0],
                 "link-color": [169, 169, 169],
                 "cg-color": [249, 38, 114],
+                "pos-color": [188, 173, 217],
                 "vel-color": [166, 226, 46],
                 "acc-color": [253, 151, 31],
                 "force-color": [102, 217, 239],
             }
-
             # Set stylesheet for the menu bar
             height = 9
             self.ui.menubar.setStyleSheet("QMenuBar {\n"
@@ -157,7 +157,7 @@ class ThemeManager:
                                           "}\n"
                                           )
             self.ui.render_button.setStyleSheet(u"QPushButton {\n"
-                                                "        background-color: transparent;\n"
+                                                "        background-color: rgb(205, 205, 205);\n"
                                                 "        border: none;\n"
                                                 "		 color: rgb(110, 110, 110);\n"
                                                 "    }\n"
@@ -199,10 +199,59 @@ class ThemeManager:
                 "node-color": [255, 255, 255],
                 "link-color": [169, 11699, 169],
                 "cg-color": [249, 38, 114],
+                "pos-color": [158, 134, 200],
                 "vel-color": [166, 226, 46],
                 "acc-color": [253, 151, 31],
                 "force-color": [102, 217, 239],
             }
+
+            self.ui.render_button.setStyleSheet(u"QPushButton {\n"
+                                             "        background-color: rgb(40, 40, 40);\n"
+                                             "        border: none;\n"
+                                             "		  color: #727272;\n"
+                                             "    }\n"
+                                             "    QPushButton:hover {\n"
+                                             "        color: white; /* Change text color on hover */\n"
+                                             "    }\n"
+                                             "    QPushButton:pressed {\n"
+                                             "        background-color: rgb(190, 190, 190);\n"
+                                             "        color: rgb(35, 35, 35); /* Change text color when pressed */\n"
+                                             "    }\n"
+                                             "")
+
+            self.ui.simOptionsButton.setStyleSheet("""
+                        QToolButton {
+                            background-color: rgb(40, 40, 40);
+                            border: none;
+                            color: #727272;
+                            padding: 0px;    
+                            margin: 0px;     
+                            font-size: 8px; 
+                        }
+                        QToolButton:hover {
+                            color: white;
+                        }
+                        QToolButton:pressed {
+                            background-color: rgb(190, 190, 190);
+                            color: rgb(35, 35, 35);
+                        }
+                        QToolButton::menu-indicator {
+                            subcontrol-origin: padding;
+                            subcontrol-position: center center;
+                            width: 8px; 
+                            height: 8px;
+                        }
+                    """)
+            self.ui.simOptionsMenu.setStyleSheet("""
+                        QMenu {
+                            background-color: rgb(35, 35, 35);    /* light gray */
+                            color:          rgb(190, 190, 190);     /* dark gray text */
+                            border:         1px solid rgb(35, 35, 35);
+                        }
+                        QMenu::item:selected {
+                            background-color: rgb(110, 110, 110);   /* slightly darker on hover */
+                        }
+                    """)
             pass
 
     def activate_ani_controlls(self):

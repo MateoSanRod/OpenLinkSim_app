@@ -6,16 +6,25 @@ from PySide6.QtWidgets import QMainWindow
 
 from Controler.app_controller import AppController
 from Controler.input_compiler import Input
-from UI.UI_utils.Test_splitter import SplitterWithButton
+from UI.UI_utils.Test_splitter import SplitterToggle
 from UI.UI_utils.theme_manager import ThemeManager
-from app_test.Controler.view_controller import ViewPlotController
-from app_test.UI.test_ui import Ui_MainWindow
+from CDIM_app.Controler.view_controller import ViewPlotController
+from CDIM_app.UI.mainwin_ui import Ui_MainWindow
 from view.opengl_view_widget import ViewWidgetPlot
+from PySide6.QtGui import QSurfaceFormat
 
-# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_base.txt').read_text()
-txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_links_v2.txt').read_text()
-# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_articulated_quafrilaters_2input_test.txt').read_text()
+
+
+# cranck slider
 # txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_triangle_articulated.txt').read_text()
+# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_triangle_articulated_3.txt').read_text()
+# 4bar
+txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_base.txt').read_text()
+# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_links_v2.txt').read_text()
+# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_p4_7.txt').read_text()
+
+# saw
+# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_triangle_articulated_2i.txt').read_text()
 class MainApp(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -45,21 +54,14 @@ class MainApp(QMainWindow):
         self.view_controller = ViewPlotController(self.opengl_widget,self)
         self.ui.view_widget.installEventFilter(self.view_controller)
 
-        # self.move_to_second_screen()
+        self.move_to_second_screen()
 
-        #  Later fix:
-
-        # Connect the plot widget's mouse events to the controller
-        # self.plot_widget.setMouseTracking(True)
-        # self.plot_widget.mousePressEvent = self.app_controller.mousePressEvent
-        # self.plot_widget.mouseReleaseEvent = self.app_controller.mouseReleaseEvent
-        # self.plot_widget.mouseMoveEvent = self.app_controller.mouseMoveEvent
-        # self.plot_widget.wheelEvent = self.app_controller.wheelEvent
 
         # Default window parameters
         self.ui.splitter.setSizes([650, 1000, 0])
-        self.left_splitter_button = SplitterWithButton(self, self.ui.left_splitter_button, "left")
-        self.right_splitter_button = SplitterWithButton(self, self.ui.right_splitter_button, "right")
+        self.left_splitter_button = SplitterToggle(self, self.ui.left_splitter_button, "left")
+        self.right_splitter_button = SplitterToggle(self, self.ui.right_splitter_button, "right")
+
 
     def move_to_second_screen(self):
         app = qtw.QApplication.instance()
@@ -70,7 +72,18 @@ class MainApp(QMainWindow):
             self.move(center_x, center_y)
         # self.showMaximized()
 
-def main() -> None:
+def main():
+    fmt = QSurfaceFormat()
+    fmt.setRenderableType(QSurfaceFormat.OpenGL)
+    fmt.setProfile(QSurfaceFormat.CompatibilityProfile)
+    fmt.setVersion(3, 3)
+
+    fmt.setSamples(8)
+    fmt.setDepthBufferSize(24)
+    fmt.setStencilBufferSize(4)
+    QSurfaceFormat.setDefaultFormat(fmt)
+    fmt.setSwapBehavior(QSurfaceFormat.DoubleBuffer)
+
     app = qtw.QApplication(sys.argv)
     form = MainApp()
     form.show()
@@ -78,4 +91,6 @@ def main() -> None:
 
 
 if __name__ == '__main__':
+    import numpy as np
+    np.set_printoptions(precision=5, suppress=True, threshold=np.inf, linewidth=200)
     main()

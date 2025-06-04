@@ -1,13 +1,16 @@
 import re
 import textwrap
 from pathlib import Path
+
 import numpy as np
 
+
 class Input(object):
-    def __init__(self, app,txt = None):
+    def __init__(self, app, txt=None):
         self.app = app
         self.txt = txt
         self.delta_time = None
+
     def compile(self):
         if self.txt == None:
             self.input_multiline_string = self.app.ui.plainTextEdit.toPlainText()
@@ -48,7 +51,7 @@ class Input(object):
             u"return non_linear_matrix")
         eq_geometricas_footer = textwrap.indent(eq_geometricas_footer, '\t')
 
-        self.eq_geometricas = (eq_geometricas_header +
+        self.eq_code = (eq_geometricas_header +
                                eq_geometricas_body + eq_geometricas_footer)
 
     def initial_conditions(self):
@@ -63,8 +66,8 @@ class Input(object):
         position_dep_var_str = ''.join(re.findall(rf'{self.dependent_variables}\s*=\s*(.*)', position_cond_input))
         self.init_indep_var = None if position_indep_var_str == '' else np.deg2rad(eval(position_indep_var_str))
         self.init_dep_var = None if position_dep_var_str == '' else np.deg2rad(eval(position_dep_var_str))
-        print(self.independent_variables,"indep_var")
-        print(self.dependent_variables,"dep_var")
+        print(self.independent_variables, "indep_var")
+        print(self.dependent_variables, "dep_var")
 
         speed_flags = re.compile(r'Input speed:\s*([\s\S]*?)(?=:|\Z)')
         speed_match = speed_flags.search(init_cond_input)
@@ -74,13 +77,21 @@ class Input(object):
         print(speed_cond_input)
         print(speed_indep_var_str)
 
+        acceleration_flags = re.compile(r'Input acceleration:\s*([\s\S]*?)(?=:|\Z)')
+        acceleration_match = acceleration_flags.search(init_cond_input)
+        acceleration_cond_input = acceleration_match.group(1).strip() if acceleration_match else ""
+        acceleration_indep_var_str = ''.join(
+            re.findall(rf'{self.independent_variables}\s*=\s*(.*)', acceleration_cond_input))
+        self.accel_indep_var = None if acceleration_indep_var_str == '' else eval(acceleration_indep_var_str)
+        print(acceleration_cond_input)
+        print(acceleration_indep_var_str)
+
         type_flags = re.compile(r'Input type:\s*([\s\S]*?)(?=:|\Z)')
         type_match = type_flags.search(init_cond_input)
         type_cond_input = type_match.group(1).strip() if type_match else ""
         type_indep_var_str = ''.join(re.findall(rf'{self.independent_variables}\s*=\s*(.*)', type_cond_input))
         self.type_indep_var = None if type_indep_var_str == '' else type_indep_var_str
         print(type_indep_var_str)
-
 
     def compile_nodes(self):
         node_flags = re.compile(r'\$ NODES \$([\s\S]*?)(?:\$.*?|$)')
@@ -131,40 +142,82 @@ class Input(object):
                                           substituted_item)
                 substituted_sublist.append(substituted_item)
             substituted_list.append(substituted_sublist)
-        self.manipulated_node_equations = [str.join(', ', eq) for eq in substituted_list]
+        self.nodes_code = [str.join(', ', eq) for eq in substituted_list]
 
+    # ------------------------------------------------------------------
+    #  Links ─ recognise *multiple*       prismatic = node , angle [,abs]
+    # ------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    # Input.compile_links   (replace the whole previous body)
+    # ----------------------------------------------------------------------
     def compile_links(self):
-        link_flags = re.compile(r'\$ LINKS \$([\s\S]*?)(?:\$.*?|$)')
-        link_match = link_flags.search(self.input_multiline_string)
-        link_raw_input = link_match.group(1).strip() if link_match else ""
+        """Populate self.link_dict – one entry per ‘Link…’ block."""
+        txt = self.input_multiline_string
+        m = re.search(r"\$ LINKS \$([\s\S]*?)(?:\$\s*[A-Z_ ]+\$|$)", txt)
+        raw = m.group(1).strip() if m else ""
+
+        blocks = re.findall(r"Link\d+\s*:\s*([\s\S]*?)(?=Link\d+:|\Z)", raw)
+        POINT_RX = re.compile(r"point_\d+\s*=", re.I)
+        PRIS_RX = re.compile(r"""
+            ^\s*(\d+)\s*,\s*([+-]?\d+(?:\.\d+)?)   # ‹node› , ‹angle›
+            (?:\s*,\s*(abs))?\s*$                  # optional ‘abs’
+            """, re.X | re.I)
+
+        REV_RX = re.compile(r"^\s*(\d+)\s*$")  # revolute = ‹node›
 
         self.link_dict = {}
-        matches = re.findall(r'Link\d+:([\s\S]*?)(?=Link\d+|\Z)', link_raw_input)
-        for index, node_def in enumerate(matches):
-            lines = node_def.strip().split('\n')
-            link_keys = [pos_eq.split('=')[0].strip() for pos_eq in lines]
-            link_values = [pos_eq.split('=')[1].strip() for pos_eq in lines]
-            self.link_dict.update({f'Link{index + 1}': {key: value for key, value in zip(link_keys, link_values)}})
 
+        for idx, blk in enumerate(blocks, start=1):
+
+            pris_nodes, pris_axis, pris_abs = [], [], []
+            revolute_nodes = []
+
+            keyvals = {}
+
+            for line in blk.strip().splitlines():
+                if "=" not in line:
+                    continue
+                k, v = (s.strip() for s in line.split("=", 1))
+
+                if k.lower() == "prismatic":
+                    mm = PRIS_RX.match(v)
+                    if not mm:
+                        raise ValueError(f"Bad prismatic spec in Link{idx}: {v}")
+                    pris_nodes.append(int(mm.group(1)) - 1)  # global id
+                    pris_axis.append(float(mm.group(2)))
+                    pris_abs.append(bool(mm.group(3)))
+
+                elif k.lower() == "revolute":
+                    mm = REV_RX.match(v)
+                    if not mm:
+                        raise ValueError(f"Bad revolute spec in Link{idx}: {v}")
+                    revolute_nodes.append(int(mm.group(1)) - 1)  # global id
+
+                else:  # keep the *first* occurrence
+                    keyvals.setdefault(k, v)
+
+            # connections *must* exist – we need them now
+            conn = eval(keyvals.get("connections", "[]"))
+
+            # ------------ collect extra ‘point_n = …’ keys -------------------
+            points = [keyvals.pop(k) for k in sorted(keyvals, key=str.lower)
+                      if POINT_RX.match(f"{k}=")]
+            if points:
+                keyvals["points"] = points
+
+            # map all global ids → local (0 / 1)
+            pris_local = [conn.index(g + 1) for g in pris_nodes]
+            rev_local = [conn.index(g + 1) for g in revolute_nodes]
+
+            keyvals.update({
+                "is_prismatic": bool(pris_nodes),
+                "pris_nodes": pris_local,
+                "pris_axis": pris_axis,
+                "pris_abs": pris_abs,
+                "is_revolute": bool(rev_local),
+                "rev_nodes": rev_local
+            })
+            self.link_dict[f"Link{idx}"] = keyvals
 
     def __add__(self, other) -> None:
         self.input_multiline_string += self.other.input_multiline_string
-
-
-if __name__ == '__main__':
-
-
-    input_obj = Input(app)
-    input_obj.input_multiline_string = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_links.txt').read_text()
-    input_obj.compile_constants()
-    input_obj.substitute_constants()
-    input_obj.compile_geometric_eqs()
-    input_obj.initial_conditions()
-    input_obj.compile_nodes()
-    input_obj.compile_links()
-
-    # Tests
-    print(input_obj.init_indep_var)
-    print(input_obj.init_dep_var)
-
-

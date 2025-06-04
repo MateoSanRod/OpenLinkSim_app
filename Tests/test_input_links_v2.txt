@@ -1,28 +1,21 @@
 $ VARIABLES $
 
-l1 = 1.5
+l1 = 2
 l2 = 4
 l3 = 3.5
-fxv = 3.5
+l4 = 3.5
 
 $ GEOMETRIC EQ $
 
 phi = indep_var
 phi_2, phi_3 = dep_var
-eq1 = l1 * np.cos(phi) + l2 * np.cos(phi_2) + l3 * np.cos(phi_3)-fxv
-eq2 = l1 * np.sin(phi) + l2 * np.sin(phi_2) - l3 * np.sin(phi_3)
+eq1 = l1 * cos(phi) + l2 * cos(phi_2) - l3 * cos(phi_3) - l4
+eq2 = l1 * sin(phi) + l2 * sin(phi_2) - l3 * sin(phi_3)
 
 $ INITIAL CONDITIONS $
 
 Position:
-phi = 0
-phi_2, phi_3 = [1,0]
-
-Input speed:
-phi = 0.5
-
-Input type:
-phi = R
+phi = 60
 
 $ NODES $
 
@@ -30,30 +23,48 @@ Node1:
 x1 = 0
 y1 = 0
 Node2:
-x2 = np.cos(phi) * l1
-y2 = np.sin(phi) * l1
+x2 = cos(phi) * l1
+y2 = sin(phi) * l1
 Node3:
-x3 = fxv-l3 * np.cos(phi_3)
-y3 = l3 * np.sin(phi_3)
+x3 =x2 + l2 * np.cos(phi_2)
+y3 =y2 + l2 * np.sin(phi_2)
 Node4:
-x4 = fxv
+x4 = l4
 y4 = 0
+Node5:
+x5 =x2 + l2 * np.cos(phi_2+np.pi/2)
+y5 =y2 + l2 * np.sin(phi_2+np.pi/2)
 
 $ LINKS $
 
 Link1:
 connections = [1, 2]
-length = l1
 cg = [l1/2,0]
-driven_by = phi
+mass        = 3.493
+inertia     = 0.00043896
 
 Link2:
-connections = [2, 3]
-length = l2
-cg = [1,0.1]
-external_forces = [[0.5,0],[200,0],"cartesian","local"]
+connections = [2, 3, 5]
+cg = [l2/3,1]
+mass        = 3.493
+inertia     = 0.00043896
 
 Link3:
 connections = [3, 4]
-length = l3
 cg = [l3/2,0]
+mass        = 3.493
+inertia     = 0.00043896
+
+
+
+
+
+
+
+
+
+
+
+
+
+

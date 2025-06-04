@@ -45,13 +45,19 @@ Link1:
 connections = [1, 2]
 length = l1
 cg = [l1/2,0]
+mass        = 5.
+inertia     = 0.0001171
 
 Link2:
 connections = [2, 3]
 length = l2
 cg = [1,0.1]
+mass        = 5.
+inertia     = 0.0001171
 
 Link3:
 connections = [3, 4]
 length = l3
 cg = [l3/2,0]
+mass        = 5.
+inertia     = 0.0001171

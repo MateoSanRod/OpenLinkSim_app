@@ -1,77 +1,50 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
-class Ui_MainWindow(object):
-    def __init__(self):
-        super().__init__()
+from graphviz import Digraph
 
-        self.vbox = QVBoxLayout()
-        self.setupUi()
+# Create a new directed graph
+dot = Digraph(comment='Final Simulation Frame Workflow (Correct Reverse Handling and Layout)')
 
-    def setupUi(self):
-        self.hbox = QHBoxLayout()
+# Define nodes
+dot.node('P', 'Reset to Initial Position\nBegin Reverse Stepping', shape='box')  # <-- moved up
+dot.node('A', 'Start:\nLoad Initial Position')
+dot.node('B', 'Check if Initial Mechanism\nConfiguration is Feasible', shape='diamond')
+dot.node('C', 'Search for Closest Feasible\nInitial Position', shape='box')
+dot.node('D', 'Set Initial Dependent Variable Guess', shape='parallelogram')
+dot.node('F', 'Store Frame Data', shape='parallelogram')
+dot.node('G', 'Update Inputs\n(Position, Velocity, Variable Guess Update)', shape='box')
+dot.node('I', 'Compute Frame Image', shape='box')
+dot.node('J', 'Is New Frame Feasible?', shape='diamond')
+dot.node('H', 'Reverse Stepping?', shape='diamond')
+dot.node('Q', 'Merge Forward and Reverse Frames', shape='box')
+dot.node('R', 'Check Simulation Time\nTermination Criteria', shape='diamond')
+dot.node('T', 'Simulation Complete')
 
-        self.lineEdit = self.lab()
-        self.hbox.addWidget(self.lineEdit)
+# Define edges
+dot.edge('A', 'B')
+dot.edge('B', 'D', label='Feasible')
+dot.edge('B', 'C', label='Not Feasible')
+dot.edge('C', 'D')
+dot.edge('D', 'F')
 
-        self.hbox.addStretch()
+dot.edge('J', 'H', label='Reverse Stepping Check')
+dot.edge('H', 'Q', label='Yes')
+dot.edge('Q', 'T', label='Simulation Complete')
 
-        self.pushButton = self.butt()
-        self.hbox.addWidget(self.pushButton)
+# Forward pass
+dot.edge('H', 'P', label='No')  # <-- direct to reset immediately
+dot.edge('P', 'F')
+dot.edge('F', 'G')
+dot.edge('G', 'R')
+dot.edge('R', 'I', label='Total Runtime Not Reached')
+dot.edge('R', 'T', label='Total Runtime Reached')
+dot.edge('I', 'J')
+dot.edge('J', 'F', label='Feasible')
 
-        self.vbox.addLayout(self.hbox)
-
-
-        self.pushButton.clicked.connect(self.klik)
-
-    def klik(self):
-        s = self.lineEdit.text()
-        if (len(s.strip()) != 0):
-            self.pushButton.setEnabled(False)
-            self.setupUi()
-        pass
-
-    def f(self):
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        font.setBold(True)
-        font.setWeight(75)
-        return font
-
-    def i(self):
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../../../Users/Downloads/Hopstarter-Button-Button-Add.ico"), QtGui.QIcon.Normal,
-                       QtGui.QIcon.Off)
-        return icon
-
-    def butt(self):
-        pushButton = QtWidgets.QPushButton()
-        ff = self.f()
-        pushButton.setFont(ff)
-        pushButton.setLayoutDirection(QtCore.Qt.LeftToRight)
-        pushButton.setText("")
-
-        ii = self.i()
-        pushButton.setIcon(ii)
-        pushButton.setIconSize(QtCore.QSize(21, 21))
-        pushButton.setAutoDefault(True)
-        pushButton.setDefault(True)
-        pushButton.setFlat(True)
-        pushButton.setObjectName("pushButton")
-        return pushButton
-
-    def lab(self):
-        lineEdit = QtWidgets.QLineEdit()
-        ff = self.f()
-        lineEdit.setFont(ff)
-
-        lineEdit.setObjectName("lineEdit")
-        return lineEdit
+# If becomes not feasible
 
 
-if __name__ == '__main__':
-    import sys
+# Render the graph
+dot.render('simulation_frame_workflow_corrected', format='png', view=True)
 
-    app = QtWidgets.QApplication(sys.argv)
-    ui = Ui_MainWindow()
-    ui.show()
-    sys.exit(app.exec_())
+# Display the graph object
+print(dot.source)
+

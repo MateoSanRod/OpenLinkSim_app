@@ -10,8 +10,8 @@
   <component name="PyNamespacePackagesService">
     <option name="namespacePackageFolders">
       <list>
-        <option value="$MODULE_DIR$/app_test/Model" />
-        <option value="$MODULE_DIR$/app_test/view" />
+        <option value="$MODULE_DIR$/CDIM_app/Model" />
+        <option value="$MODULE_DIR$/CDIM_app/view" />
       </list>
     </option>
   </component>

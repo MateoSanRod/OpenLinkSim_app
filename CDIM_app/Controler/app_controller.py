@@ -1,7 +1,7 @@
-from PySide6.QtCore import QObject, QEvent
+from PySide6.QtCore import QObject, QEvent, QTimer
 from PySide6.QtGui import Qt
 
-from app_test.Controler.run_model import run_image, run_simulation
+from CDIM_app.Controler.run_model import run_image, run_simulation
 
 
 class AppController(QObject):
@@ -11,7 +11,7 @@ class AppController(QObject):
         self.ui = app.ui
         self.view = app.opengl_widget
         self.input = app.input
-        self.status_bar = self.ui.statusbar  # Accessing the status bar
+        self.status_bar = self.ui.statusbar
         self.global_key_actions = {
             (Qt.Key_Tab, Qt.ControlModifier): self._handle_ctrl_tab,
         }
@@ -20,10 +20,15 @@ class AppController(QObject):
             (Qt.Key_Return, Qt.ShiftModifier): self._handle_shift_return,
         }
         self._connect_buttons()
+        self.kin_analisys = False
+        self.dyn_analisys = False
 
     def _connect_buttons(self):
         self.ui.preview_button.clicked.connect(self._handle_preview_button)
         self.ui.render_button.clicked.connect(self._handle_render_button)
+        self.ui.kin_action.triggered.connect(self._kin_action_triggered)
+        self.ui.dyn_action.triggered.connect(self._dyn_action_triggered)
+
 
     def eventFilter(self, obj, event):
         if obj == self.ui.plainTextEdit:
@@ -48,6 +53,24 @@ class AppController(QObject):
                 self.global_key_actions[key_combo]()
                 return True
         return False
+
+    def _kin_action_triggered(self, checked):
+        if checked:
+            self.kin_analisys = checked
+        else:
+            self.kin_analisys = checked
+            self._dyn_action_triggered(checked)
+            self.ui.dyn_action.setChecked(checked)
+        QTimer.singleShot(0, self.ui.simOptionsButton.showMenu)
+
+    def _dyn_action_triggered(self, checked):
+        if checked:
+            self.dyn_analisys = checked
+            self._kin_action_triggered(checked)
+            self.ui.kin_action.setChecked(checked)
+        else:
+            self.dyn_analisys = checked
+        QTimer.singleShot(0, self.ui.simOptionsButton.showMenu)
 
     def _handle_ctrl_tab(self):
         self.input.compile()

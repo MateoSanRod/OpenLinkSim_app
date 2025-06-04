@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'test_ui.ui'
+## Form generated from reading UI file 'mainwin_ui.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.1
 ##
@@ -9,12 +9,14 @@
 ################################################################################
 
 from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect,
-                            QSize, Qt)
-from PySide6.QtGui import (QAction, QBrush, QColor, QFont, QPalette)
+                            QSize, Qt,QTimer)
+from PySide6.QtGui import (QAction, QBrush, QColor, QFont, QPalette,QActionGroup)
 from PySide6.QtWidgets import (QFrame, QGridLayout, QHBoxLayout,
                                QLayout, QMenu, QMenuBar,
                                QPlainTextEdit, QPushButton, QSplitter,
-                               QStatusBar, QVBoxLayout, QWidget, QLabel)
+                               QStatusBar, QVBoxLayout, QWidget, QLabel,QToolButton,
+                               QWidgetAction, QLineEdit)
+from UI.UI_utils.display_buttontree import VectorTree
 
 
 class Ui_MainWindow(object):
@@ -274,8 +276,8 @@ class Ui_MainWindow(object):
                                    "}\n"
                                    "\n"
                                    "QMenu {\n"
-                                   "    background-color: red; /* Background color of drop-down menus */\n"
-                                   "    color: blue; /* Text color of drop-down menus */\n"
+                                   "    background-color: rgb(190, 190, 190); /* Background color of drop-down menus */\n"
+                                   "    color: rgb(11, 11, 11); /* Text color of drop-down menus */\n"
                                    "    border: 0px solid #333; /* Border of drop-down menus */\n"
                                    "}\n"
                                    "\n"
@@ -284,11 +286,11 @@ class Ui_MainWindow(object):
                                    "}\n"
                                    "\n"
                                    "QMenu::item:selected {\n"
-                                   "    background-color: #555; /* Background color when item in drop-down menu is selected */\n"
+                                   "    background-color: rgb(190, 190, 190); /* Background color when item in drop-down menu is selected */\n"
                                    "}\n"
                                    "\n"
                                    "QMenu::separator {\n"
-                                   "    background-color: #666; /* Color of separator lines in drop-down menus */\n"
+                                   "    background-color: rgb(190, 190, 190); /* Color of separator lines in drop-down menus */\n"
                                    "    height: 1px; /* Height of separator lines */\n"
                                    "}\n"
                                    )
@@ -305,7 +307,7 @@ class Ui_MainWindow(object):
         self.render_button = QPushButton(self.menubar)
         self.render_button.setObjectName(u"render_button")
         self.render_button.setText("\u2637")
-        self.render_button.setGeometry(QRect(80, 0, self.menubar_height, self.menubar_height))
+        self.render_button.setGeometry(QRect(80, 0, self.menubar_height-9, self.menubar_height))
         self.render_button.setStyleSheet(u"QPushButton {\n"
                                          "        background-color: transparent;\n"
                                          "        border: none;\n"
@@ -319,6 +321,7 @@ class Ui_MainWindow(object):
                                          "        color: rgb(35, 35, 35); /* Change text color when pressed */\n"
                                          "    }\n"
                                          "")
+        
         self.ani_speed_label = QPushButton(self.menubar)
         self.ani_speed_label.setGeometry(QRect(500, 0, self.menubar_height * 2.8, self.menubar_height))
         font = QFont()
@@ -339,7 +342,111 @@ class Ui_MainWindow(object):
                                          "        color: rgb(35, 35, 35); /* Change text color when pressed */\n"
                                          "    }\n"
                                          "")
+            # 1) Create the little down-arrow toolbutton
+        self.simOptionsButton = QToolButton(self.menubar)
+        self.simOptionsButton.setObjectName("simOptionsButton")
+        font = QFont()
+        font.setPointSize(5)
+        self.simOptionsButton.setFont(font)
+        # Show popup menu instantly when clicked
+        self.simOptionsButton.setPopupMode(QToolButton.InstantPopup)
 
+        # Position it immediately to the right of the render_button
+        rb = self.render_button.geometry()
+        self.simOptionsButton.setGeometry(
+            QRect(
+                rb.x() + rb.width(),  # no extra gap
+                0,
+                10,
+                self.menubar_height
+            )
+        )
+
+        self.simOptionsMenu = QMenu(self.simOptionsButton)
+        self.simOptionsButton.setMenu(self.simOptionsMenu)
+        self.simOptionsButton.setStyleSheet("""
+            QToolButton {
+                background-color: rgb(205, 205, 205);
+                border: none;
+                color: #727272;
+                padding: 0px;    
+                margin: 0px;     
+                font-size: 8px; 
+            }
+            QToolButton:hover {
+                color: white;
+            }
+            QToolButton:pressed {
+                background-color: rgb(190, 190, 190);
+                color: rgb(35, 35, 35);
+            }
+            QToolButton::menu-indicator {
+                subcontrol-origin: padding;
+                subcontrol-position: center center;
+                width: 8px; 
+                height: 8px;
+            }
+        """)
+        self.simOptionsMenu.setStyleSheet("""
+            QMenu {
+                background-color: #E0E0E0;    /* light gray */
+                color:          #333333;     /* dark gray text */
+                border:         1px solid #AAAAAA;
+            }
+            QMenu::item:selected {
+                background-color: #CCCCCC;   /* slightly darker on hover */
+            }
+        """)
+
+        # — 1) Kinematic & Dynamic analysis — both checkable, not exclusive —
+        self.kin_action = QAction("Kinematic analysis", self.simOptionsMenu)
+        self.kin_action.setCheckable(True)
+        self.dyn_action = QAction("Dynamic analysis", self.simOptionsMenu)
+        self.dyn_action.setCheckable(True)
+
+        self.simOptionsMenu.addAction(self.kin_action)
+        self.simOptionsMenu.addAction(self.dyn_action)
+        self.simOptionsMenu.addSeparator()
+
+
+        timestep_widget_action = QWidgetAction(self.simOptionsMenu)
+        sw = QWidget();
+        sw.setLayout(QHBoxLayout())
+        sw.layout().setContentsMargins(8, 4, 8, 4)
+        sw.layout().addWidget(QLabel("Time step:"))
+        self.timestepLineEdit = QLineEdit("")
+        self.timestepLineEdit.setMaximumWidth(60)
+        sw.layout().addWidget(self.timestepLineEdit)
+        timestep_widget_action.setDefaultWidget(sw)
+        self.simOptionsMenu.addAction(timestep_widget_action)
+
+        # — 2) Duration (s) entry —
+        time_widget_action = QWidgetAction(self.simOptionsMenu)
+        tw = QWidget();
+        tw.setLayout(QHBoxLayout())
+        tw.layout().setContentsMargins(8, 4, 8, 4)
+        tw.layout().addWidget(QLabel("Duration:"))
+        self.simTimeLineEdit = QLineEdit("")
+        self.simTimeLineEdit.setMaximumWidth(60)
+        tw.layout().addWidget(self.simTimeLineEdit)
+        time_widget_action.setDefaultWidget(tw)
+        self.simOptionsMenu.addAction(time_widget_action)
+
+        # — 3) Gravity (m/s²) entry —
+        grav_widget_action = QWidgetAction(self.simOptionsMenu)
+        gw = QWidget();
+        gw.setLayout(QHBoxLayout())
+        gw.layout().setContentsMargins(8, 4, 8, 4)
+        gw.layout().addWidget(QLabel("Gravity:"))
+        self.gravityLineEdit = QLineEdit("0")
+        self.gravityLineEdit.setMaximumWidth(60)
+        gw.layout().addWidget(self.gravityLineEdit)
+        grav_widget_action.setDefaultWidget(gw)
+        self.simOptionsMenu.addAction(grav_widget_action)
+
+
+
+        # Attach menu to button
         # self.ani_speed_label = QLabel(self.menubar)
         # self.ani_speed_label.setGeometry(QRect(500, 0, self.menubar_height * 2.8, self.menubar_height))
         # font = QFont()
@@ -400,7 +507,6 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
-
         # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -434,3 +540,13 @@ class Ui_MainWindow(object):
         self.backwards_button.setGeometry(
             QRect(self.menubar.width() - self.ani_speed_label.width() - self.control_buttons_width * 3, 0,
                   self.control_buttons_width, self.menubar_height))
+        rb = self.render_button.geometry()
+        self.simOptionsButton.setGeometry(
+            QRect(
+                rb.x() + rb.width(),
+                0,
+                10,
+                self.menubar_height
+            )
+        )
+

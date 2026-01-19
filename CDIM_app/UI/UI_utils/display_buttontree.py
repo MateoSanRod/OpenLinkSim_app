@@ -33,6 +33,24 @@ class _TransparentView(QTreeView):
         QTreeView::item:selected {
             background: #303030;
         }
+        QTreeView::indicator {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+        /* Keep same shape as checked but lighter and without the check glyph */
+        QTreeView::indicator:unchecked {
+            background: #dcdcdc;
+            border: 1px solid #b0b0b0;
+            image: none;
+        }
+        QTreeView::indicator:unchecked:hover {
+            background: #e6e6e6;
+        }
+        QTreeView::indicator:checked {
+            background: #b3b3b3;
+            border: 1px solid #8a8a8a;
+        }
 
         /* Scrollbar styling for QTreeView */
         QTreeView QScrollBar:vertical {

@@ -1,0 +1,74 @@
+$ VARIABLES $
+
+l1 = 0.2
+l2 = 0.3
+l3 = 0.3
+l4 = 0.4
+
+$ GEOMETRIC EQ $
+
+phi = indep_var
+phi_2, phi_3 = dep_var
+eq1 = l1 * cos(phi) + l2 * cos(phi_2) - l3 * cos(phi_3) - l4
+eq2 = l1 * sin(phi) + l2 * sin(phi_2) - l3 * sin(phi_3)
+
+$ INITIAL CONDITIONS $
+
+Position:
+phi = 60
+
+$ NODES $
+
+Node1:
+x1 = 0
+y1 = 0
+Node2:
+x2 = cos(phi) * l1
+y2 = sin(phi) * l1
+Node3:
+x3 =x2 + l2 * np.cos(phi_2)
+y3 =y2 + l2 * np.sin(phi_2)
+Node4:
+x4 = l4
+y4 = 0
+Node5:
+x5 =x2 + 2* l2 * np.cos(phi_2)
+y5 =y2 + 2* l2 * np.sin(phi_2)
+Node6:
+x6 =np.cos(phi_2) * l2 + l4
+y6 =np.sin(phi_2) * l2
+Node7:
+x7 = x6 - np.cos(phi_3) * l2
+y7 = y6 - np.sin(phi_3) * l2
+
+
+$ LINKS $
+
+Link1:
+connections = [1, 2]
+cg = [l1/2,0]
+
+
+Link2:
+connections = [2, 3]
+cg = [l2/2,0]
+
+Link3:
+connections = [3, 4]
+cg = [l3/2,0]
+
+Link4:
+connections = [3, 5]
+cg = [l3/2,0]
+
+Link5:
+connections = [4, 6]
+cg = [l3/2,0]
+
+Link6:
+connections = [6, 7]
+cg = [l3/2,0]
+
+Link6:
+connections = [5, 6]
+cg = [l3/2,0]

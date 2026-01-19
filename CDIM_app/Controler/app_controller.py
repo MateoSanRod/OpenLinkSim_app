@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, QEvent, QTimer
 from PySide6.QtGui import Qt
 
-from CDIM_app.Controler.run_model import run_image, run_simulation
+from .run_model import run_image, run_simulation
 
 
 class AppController(QObject):

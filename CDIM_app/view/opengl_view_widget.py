@@ -5,8 +5,8 @@ from OpenGL.GL import *
 from PySide6.QtCore import Qt
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtWidgets import QVBoxLayout
-from UI.UI_utils.display_buttontree import VectorTree
-from view.view_camera import Camera
+from ..UI.UI_utils.display_buttontree import VectorTree
+from .view_camera import Camera
 
 
 class ViewWidgetPlot(QOpenGLWidget):

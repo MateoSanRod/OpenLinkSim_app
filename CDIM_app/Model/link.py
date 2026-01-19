@@ -1,5 +1,5 @@
 import numpy as np
-from CDIM_app.Model.utils import *
+from .utils import *
 
 
 class Link:

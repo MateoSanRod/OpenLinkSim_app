@@ -1,7 +1,0 @@
-<RCC>
-  <qresource prefix="Main"/>
-  <qresource prefix="handle_iamges">
-    <file>handle.jpg</file>
-  </qresource>
-  <qresource prefix="Buttons"/>
-</RCC>

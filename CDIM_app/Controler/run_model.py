@@ -1,5 +1,5 @@
-from CDIM_app.Model.model import Simulation
-from view.opengl_view_widget import ViewWidgetPlot
+from ..Model.model import Simulation
+from ..view.opengl_view_widget import ViewWidgetPlot
 
 
 def run_image(app, view_widget_plot, compiled_input):

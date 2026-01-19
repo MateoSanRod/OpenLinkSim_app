@@ -32,7 +32,15 @@ DESCRIPTION
 English
 
 2. Abstract:
-This open-source computational tool is designed for the simulation and analysis of planar linkage mechanisms. Aimed at students, educators and engineers, the software offers a flexible and intuitive environment for modeling mechanical systems. It features a custom domain-specific language for defining mechanisms through variables, equations, and structural data, and combines symbolic preprocessing with numerical solvers for kinematic and dynamic analysis. The tool includes an interactive graphical user interface (GUI) for real-time configuration and visualization. Validated through representative test cases, it delivers accurate results for position, velocity, acceleration, and force analysis. Entirely free of proprietary dependencies, the application serves as an accessible alternative to commercial simulation tools, promoting educational equity and supporting learning through visualization and experimentation. (2025-05-16)
+This open-source computational tool is designed for the simulation and analysis of planar linkage mechanisms. Aimed at
+students, educators and engineers, the software offers a flexible and intuitive environment for modeling mechanical
+systems. It features a custom domain-specific language for defining mechanisms through variables, equations, and
+structural data, and combines symbolic preprocessing with numerical solvers for kinematic and dynamic analysis. The
+tool includes an interactive graphical user interface (GUI) for real-time configuration and visualization.
+Validated through representative test cases, it delivers accurate results for position, velocity, acceleration, and
+force analysis. Entirely free of proprietary dependencies, the application serves as an accessible alternative to
+commercial simulation tools, promoting educational equity and supporting learning through visualization and
+experimentation. (2025-05-16)
 
 3. Keywords:
 kinematics, dynamics, kinematic linkages
@@ -91,7 +99,6 @@ N/A
 
 FILE OVERVIEW
 --------------
-
 
 1. Explain the file naming convention, if applicable:
 N/A

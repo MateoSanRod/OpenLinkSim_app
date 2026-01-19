@@ -5,7 +5,7 @@ import types
 import numpy as np
 import scipy.optimize as sp_optimize
 
-from CDIM_app.Model.link import Link
+from .link import Link
 from test_utils.timer import get_time
 
 
@@ -770,7 +770,7 @@ class Simulation:
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from pathlib import Path
-    from CDIM_app.Controler.input_compiler import Input
+    from ..Controler.input_compiler import Input
     import pandas as pd
     from scipy.ndimage import gaussian_filter
 

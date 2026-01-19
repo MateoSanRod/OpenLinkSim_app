@@ -172,21 +172,23 @@ class ThemeManager:
             self.ui.ani_speed_label.setStyleSheet(u"QPushButton {\n"
                                                 "        background-color: transparent;\n"
                                                 "        border: none;\n"
-                                                "		 color: rgb(110, 110, 110);\n"
+                                                "		 color: rgba(0, 0, 0, 0);\n"
                                                 "    }\n"
                                                 "")
-            self.ui.playstop_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		 color: rgb(190, 190, 190);\n"
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: rgb(114, 114, 114); /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.forwards_button.setStyleSheet(self.ui.playstop_button.styleSheet())
-            self.ui.backwards_button.setStyleSheet(self.ui.playstop_button.styleSheet())
+            btn_light_hidden = (
+                "QPushButton {"
+                "  background-color: transparent;"
+                "  border: none;"
+                "  padding: 0;"
+                "  color: rgba(0, 0, 0, 0);"
+                "}"
+                "QPushButton:pressed {"
+                "  color: rgba(0, 0, 0, 0);"
+                "}"
+            )
+            self.ui.playstop_button.setStyleSheet(btn_light_hidden)
+            self.ui.forwards_button.setStyleSheet(btn_light_hidden)
+            self.ui.backwards_button.setStyleSheet(btn_light_hidden)
 
         if theme == 'dark':
             plt.style.use('dark_background')
@@ -218,6 +220,31 @@ class ThemeManager:
                                              "        color: rgb(35, 35, 35); /* Change text color when pressed */\n"
                                              "    }\n"
                                              "")
+
+            # Make playback controls clearly visible on dark menu bar
+            btn_dark_hidden = (
+                "QPushButton {"
+                "  background-color: transparent;"
+                "  border: none;"
+                "  padding: 0;"
+                "  color: rgba(0, 0, 0, 0);"
+                "}"
+                "QPushButton:pressed {"
+                "  color: rgba(0, 0, 0, 0);"
+                "}"
+            )
+            self.ui.playstop_button.setStyleSheet(btn_dark_hidden)
+            self.ui.forwards_button.setStyleSheet(btn_dark_hidden)
+            self.ui.backwards_button.setStyleSheet(btn_dark_hidden)
+            self.ui.ani_speed_label.setStyleSheet(u"QPushButton {\n"
+                                                  "        background-color: transparent;\n"
+                                                  "        border: none;\n"
+                                                  "        color: rgba(0, 0, 0, 0);\n"
+                                                  "    }\n"
+                                                  "    QPushButton:pressed {\n"
+                                                  "        color: rgb(255, 255, 255);\n"
+                                                  "    }\n"
+                                                  "")
 
             self.ui.simOptionsButton.setStyleSheet("""
                         QToolButton {
@@ -255,17 +282,21 @@ class ThemeManager:
             pass
 
     def activate_ani_controlls(self):
+        def flat(color: str, pressed: str):
+            return (
+                "QPushButton {"
+                "  background-color: transparent;"
+                "  border: none;"
+                "  padding: 0;"
+                f"  color: {color};"
+                "}"
+                "QPushButton:pressed {"
+                f"  color: {pressed};"
+                "}"
+            )
+
         if self.app.view_controller._is_simulation_running:
-            self.ui.playstop_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		 color: #E67E7E;\n"
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: #C94F4F; /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
+            self.ui.playstop_button.setStyleSheet(flat("#E67E7E", "#C94F4F"))
             font = QFont()
             font.setPointSize(13)
             self.ui.playstop_button.setFont(font)
@@ -273,134 +304,67 @@ class ThemeManager:
             self.ui.forwards_button.setText(">>")
             self.ui.backwards_button.setText("<<")
             if self.theme == 'dark':
-                self.ui.ani_speed_label.setStyleSheet(u"QPushButton {\n"
-                                                      "        background-color: transparent;\n"
-                                                      "        border: none;\n"
-                                                      "		 color: rgb(114, 114, 114);\n"
-                                                      "    }\n"
-                                                      "")
-                self.ui.forwards_button.setStyleSheet(u"QPushButton {\n"
-                                                      "        background-color: transparent;\n"
-                                                      "        border: none;\n"
-                                                      "        padding: none; \n"
-                                                      "		 color: rgb(114, 114, 114);\n"
-                                                      "    }\n"
-                                                      "    QPushButton:pressed {\n"
-                                                      "        color: rgb(190, 190, 190); /* Change text color when pressed */\n"
-                                                      "    }\n"
-                                                      "")
-                self.ui.backwards_button.setStyleSheet(self.ui.forwards_button.styleSheet())
-            if self.theme == 'light':
-                self.ui.ani_speed_label.setStyleSheet(u"QPushButton {\n"
-                                                      "        background-color: transparent;\n"
-                                                      "        border: none;\n"
-                                                      "		 color: rgb(114, 114, 114);\n"
-                                                      "    }\n"
-                                                      "")
-                self.ui.forwards_button.setStyleSheet(u"QPushButton {\n"
-                                                      "        background-color: transparent;\n"
-                                                      "        border: none;\n"
-                                                      "        padding: none; \n"
-                                                      "		 color: rgb(114, 114, 114);\n"
-                                                      "    }\n"
-                                                      "    QPushButton:pressed {\n"
-                                                      "        color: rgb(48, 48, 48); /* Change text color when pressed */\n"
-                                                      "    }\n"
-                                                      "")
-                self.ui.backwards_button.setStyleSheet(self.ui.forwards_button.styleSheet())
+                btn = flat("rgb(230, 230, 230)", "rgb(255, 255, 255)")
+                self.ui.ani_speed_label.setStyleSheet(
+                    "QPushButton { background-color: transparent; border: none; color: rgb(230, 230, 230);} "
+                    "QPushButton:pressed { color: rgb(255, 255, 255);} ")
+            else:
+                btn = flat("rgb(50, 50, 50)", "rgb(20, 20, 20)")
+                self.ui.ani_speed_label.setStyleSheet(
+                    "QPushButton { background-color: transparent; border: none; color: rgb(70, 70, 70);} "
+                    "QPushButton:pressed { color: rgb(30, 30, 30);} ")
+            self.ui.forwards_button.setStyleSheet(btn)
+            self.ui.backwards_button.setStyleSheet(btn)
         else:
-
-            self.ui.playstop_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		 color: #7BBB80;\n"
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: #4F9E54; /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
+            self.ui.playstop_button.setStyleSheet(flat("#7BBB80", "#4F9E54"))
             font = QFont()
-
             font.setPointSize(20)
             self.ui.playstop_button.setFont(font)
             self.ui.playstop_button.setText("\u25BA")
             self.ui.forwards_button.setText(">|")
             self.ui.backwards_button.setText("|<")
             if self.theme == 'dark':
-                self.ui.forwards_button.setStyleSheet(u"QPushButton {\n"
-                                                      "        background-color: transparent;\n"
-                                                      "        border: none;\n"
-                                                      "        padding: none; \n"
-                                                      "		 color: rgb(114, 114, 114);\n"
-                                                      "    }\n"
-                                                      "    QPushButton:pressed {\n"
-                                                      "        color: rgb(190, 190, 190); /* Change text color when pressed */\n"
-                                                      "    }\n"
-                                                      "")
-                self.ui.backwards_button.setStyleSheet(self.ui.forwards_button.styleSheet())
-            if self.theme == 'light':
-                self.ui.forwards_button.setStyleSheet(u"QPushButton {\n"
-                                                      "        background-color: transparent;\n"
-                                                      "        border: none;\n"
-                                                      "        padding: none; \n"
-                                                      "		 color: rgb(114, 114, 114);\n"
-                                                      "    }\n"
-                                                      "    QPushButton:pressed {\n"
-                                                      "        color: rgb(48, 48, 48); /* Change text color when pressed */\n"
-                                                      "    }\n"
-                                                      "")
-                self.ui.backwards_button.setStyleSheet(self.ui.forwards_button.styleSheet())
+                btn = flat("rgb(230, 230, 230)", "rgb(255, 255, 255)")
+            else:
+                btn = flat("rgb(50, 50, 50)", "rgb(20, 20, 20)")
+            self.ui.forwards_button.setStyleSheet(btn)
+            self.ui.backwards_button.setStyleSheet(btn)
 
         pass
 
     def deactivate_ani_controlls(self):
+        def flat(color: str, pressed: str):
+            return (
+                "QPushButton {"
+                "  background-color: transparent;"
+                "  border: none;"
+                "  padding: 0;"
+                f"  color: {color};"
+                "}"
+                "QPushButton:pressed {"
+                f"  color: {pressed};"
+                "}"
+            )
+
+        self.ui.ani_speed_label.setText("")
+        self.ui.playstop_button.setText("\u25BA")
+        self.ui.forwards_button.setText(">>")
+        self.ui.backwards_button.setText("<<")
+
         if self.theme == 'dark':
-            self.ui.ani_speed_label.setText("")
-            self.ui.ani_speed_label.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "		 color: rgb(114, 114, 114);\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.playstop_button.setText("\u25BA")
-            self.ui.forwards_button.setText(">>")
-            self.ui.backwards_button.setText("<<")
-            self.ui.playstop_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		 color: rgb(114, 114, 114);\n"
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: rgb(190, 190, 190); /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.forwards_button.setStyleSheet(self.ui.playstop_button.styleSheet())
-            self.ui.backwards_button.setStyleSheet(self.ui.playstop_button.styleSheet())
-        if self.theme == 'light':
-            self.ui.ani_speed_label.setText("")
-            self.ui.playstop_button.setText("\u25BA")
-            self.ui.forwards_button.setText(">>")
-            self.ui.backwards_button.setText("<<")
-            self.ui.ani_speed_label.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "		 color: rgb(114, 114, 114);\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.playstop_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		 color: rgb(190, 190, 190);\n"
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: rgb(114, 114, 114); /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.forwards_button.setStyleSheet(self.ui.playstop_button.styleSheet())
-            self.ui.backwards_button.setStyleSheet(self.ui.playstop_button.styleSheet())
+            btn = flat("rgb(230, 230, 230)", "rgb(255, 255, 255)")
+            self.ui.ani_speed_label.setStyleSheet(
+                "QPushButton { background-color: transparent; border: none; color: rgb(230, 230, 230);} "
+                "QPushButton:pressed { color: rgb(255, 255, 255);} ")
+        else:
+            btn = flat("rgb(50, 50, 50)", "rgb(20, 20, 20)")
+            self.ui.ani_speed_label.setStyleSheet(
+                "QPushButton { background-color: transparent; border: none; color: rgb(70, 70, 70);} "
+                "QPushButton:pressed { color: rgb(30, 30, 30);} ")
+
+        self.ui.playstop_button.setStyleSheet(btn)
+        self.ui.forwards_button.setStyleSheet(btn)
+        self.ui.backwards_button.setStyleSheet(btn)
         pass
 
     def activate_preview_controlls(self):
@@ -410,49 +374,26 @@ class ThemeManager:
         self.ui.playstop_button.setText("\u25A0")
         self.ui.forwards_button.setText(">|")
         self.ui.backwards_button.setText("|<")
-        if self.theme == 'dark':
-            self.ui.playstop_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		 color: rgb(48, 48, 48);\n"
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: rgb(114, 114, 114); /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.forwards_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		 color: rgb(48, 48, 48);\n"
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: rgb(114, 114, 114); /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.backwards_button.setStyleSheet(self.ui.forwards_button.styleSheet())
-        if self.theme == 'light':
-            self.ui.playstop_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		 color: rgb(190, 190, 190);\n"
 
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: rgb(114, 114, 114); /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.forwards_button.setStyleSheet(u"QPushButton {\n"
-                                                  "        background-color: transparent;\n"
-                                                  "        border: none;\n"
-                                                  "        padding: none; \n"
-                                                  "		   color: rgb(190, 190, 190);\n"
-                                                  "    }\n"
-                                                  "    QPushButton:pressed {\n"
-                                                  "        color: rgb(114, 114, 114); /* Change text color when pressed */\n"
-                                                  "    }\n"
-                                                  "")
-            self.ui.backwards_button.setStyleSheet(self.ui.forwards_button.styleSheet())
+        def flat(color: str, pressed: str):
+            return (
+                "QPushButton {"
+                "  background-color: transparent;"
+                "  border: none;"
+                "  padding: 0;"
+                f"  color: {color};"
+                "}"
+                "QPushButton:pressed {"
+                f"  color: {pressed};"
+                "}"
+            )
+
+        if self.theme == 'dark':
+            btn = flat("rgb(230, 230, 230)", "rgb(255, 255, 255)")
+        else:
+            btn = flat("rgb(50, 50, 50)", "rgb(20, 20, 20)")
+
+        self.ui.playstop_button.setStyleSheet(btn)
+        self.ui.forwards_button.setStyleSheet(btn)
+        self.ui.backwards_button.setStyleSheet(btn)
         pass

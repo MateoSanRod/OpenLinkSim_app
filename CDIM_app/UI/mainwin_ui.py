@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (QFrame, QGridLayout, QHBoxLayout,
                                QPlainTextEdit, QPushButton, QSplitter,
                                QStatusBar, QVBoxLayout, QWidget, QLabel,QToolButton,
                                QWidgetAction, QLineEdit)
-from UI.UI_utils.display_buttontree import VectorTree
+from .UI_utils.display_buttontree import VectorTree
 
 
 class Ui_MainWindow(object):

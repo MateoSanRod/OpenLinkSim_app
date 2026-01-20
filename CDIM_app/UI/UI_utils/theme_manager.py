@@ -9,6 +9,8 @@ class ThemeManager:
         self.app = app
         self.ui = ui
         self.theme = theme
+        self.graph_palette = {}
+        self.graph_series_colors = {}
         self.set_theme(self.theme)
 
     def set_theme(self, theme):
@@ -190,6 +192,16 @@ class ThemeManager:
             self.ui.forwards_button.setStyleSheet(btn_light_hidden)
             self.ui.backwards_button.setStyleSheet(btn_light_hidden)
 
+            self.graph_palette = {
+                "face": "#f4f4f4",
+                "spine": "#606060",
+                "ticks": "#202020",
+                "grid": "#cfcfcf",
+                "text": "#202020",
+                "line": "#1f77b4",
+            }
+            self.graph_series_colors = self._series_colors_from_palette()
+
         if theme == 'dark':
             plt.style.use('dark_background')
             mplstyle.use('fast')
@@ -279,7 +291,17 @@ class ThemeManager:
                             background-color: rgb(110, 110, 110);   /* slightly darker on hover */
                         }
                     """)
-            pass
+            self.graph_palette = {
+                "face": "#1f1f1f",
+                "spine": "#808080",
+                "ticks": "#dcdcdc",
+                "grid": "#444444",
+                "text": "#e6e6e6",
+                "line": "#59b8ff",
+            }
+            self.graph_series_colors = self._series_colors_from_palette()
+
+        self.apply_graph_theme()
 
     def activate_ani_controlls(self):
         def flat(color: str, pressed: str):
@@ -331,6 +353,32 @@ class ThemeManager:
             self.ui.backwards_button.setStyleSheet(btn)
 
         pass
+
+    def apply_graph_theme(self):
+        if hasattr(self.app, "graph_widget") and self.app.graph_widget is not None and hasattr(self, "graph_palette"):
+            self.app.graph_widget.apply_palette(self.graph_palette)
+            self.app.graph_widget.set_series_colors(getattr(self, "graph_series_colors", {}))
+
+    def _series_colors_from_palette(self):
+        def to_hex(color_triplet, default):
+            try:
+                r, g, b = color_triplet
+                r = max(0, min(int(r), 255))
+                g = max(0, min(int(g), 255))
+                b = max(0, min(int(b), 255))
+                return f"#{r:02x}{g:02x}{b:02x}"
+            except Exception:
+                return default
+
+        vp = getattr(self, "view_plot_palette", {})
+        return {
+            "Paths": to_hex(vp.get("pos-color", (156, 125, 217)), "#9c7dd9"),
+            "Velocity": to_hex(vp.get("vel-color", (166, 226, 46)), "#a6e22e"),
+            "Acceleration": to_hex(vp.get("acc-color", (253, 151, 31)), "#fd971f"),
+            "Forces": to_hex(vp.get("force-color", (102, 217, 239)), "#66d9ef"),
+            "Input": "#888888",
+            "Time": "#888888",
+        }
 
     def deactivate_ani_controlls(self):
         def flat(color: str, pressed: str):

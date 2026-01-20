@@ -249,6 +249,10 @@ class Ui_MainWindow(object):
         self.right_widget = QWidget(self.splitter)
         self.right_widget.setObjectName(u"right_widget")
         self.right_widget.setStyleSheet(u"Background-color:rgb(48, 48, 48);")
+        self.right_layout = QVBoxLayout(self.right_widget)
+        self.right_layout.setObjectName(u"right_layout")
+        self.right_layout.setContentsMargins(6, 6, 6, 6)
+        self.right_layout.setSpacing(6)
         self.splitter.addWidget(self.right_widget)
 
         self.horizontalLayout.addWidget(self.splitter)
@@ -472,7 +476,6 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.forwards_button.setFont(font)
         self.forwards_button.setText(">>")
-        # self.forwards_button.setText(">>")
         self.forwards_button.setGeometry(QRect(0, 0, self.control_buttons_width, self.menubar_height))
         self.backwards_button = QPushButton(self.menubar)
         self.backwards_button.setObjectName(u"play_button")
@@ -527,26 +530,32 @@ class Ui_MainWindow(object):
                                               , self.preview_button.width(), self.preview_button.height()))
 
     def adjustWindowSize(self, event):
-        self.ani_speed_label.setGeometry(
-            QRect(self.menubar.width() - self.ani_speed_label.width(), 0, self.ani_speed_label.width(),
-                  self.menubar_height))
-        self.forwards_button.setGeometry(
-            QRect(self.menubar.width() - self.ani_speed_label.width() - self.control_buttons_width, 0,
-                  self.control_buttons_width, self.menubar_height))
-        self.playstop_button.setGeometry(
-            QRect(self.menubar.width() - self.ani_speed_label.width() - self.control_buttons_width * 2, 0,
-                  self.control_buttons_width,
-                  self.menubar_height))
-        self.backwards_button.setGeometry(
-            QRect(self.menubar.width() - self.ani_speed_label.width() - self.control_buttons_width * 3, 0,
-                  self.control_buttons_width, self.menubar_height))
+        # Place playback controls using size hints to avoid collapsing to zero width
+        btn_w = max(int(self.menubar_height * 1.25), self.playstop_button.sizeHint().width() + 8)
+        speed_w = max(int(self.menubar_height * 1.8), self.ani_speed_label.sizeHint().width() + 10)
+        self.control_buttons_width = btn_w
+
+        x = self.menubar.width()
+        h = self.menubar_height
+
+        x -= speed_w
+        self.ani_speed_label.setGeometry(QRect(x, 0, speed_w, h))
+
+        x -= btn_w
+        self.forwards_button.setGeometry(QRect(x, 0, btn_w, h))
+
+        x -= btn_w
+        self.playstop_button.setGeometry(QRect(x, 0, btn_w, h))
+
+        x -= btn_w
+        self.backwards_button.setGeometry(QRect(x, 0, btn_w, h))
+
         rb = self.render_button.geometry()
         self.simOptionsButton.setGeometry(
             QRect(
                 rb.x() + rb.width(),
                 0,
                 10,
-                self.menubar_height
+                h
             )
         )
-

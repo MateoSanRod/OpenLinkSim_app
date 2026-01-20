@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Dict, Tuple, List
 import numpy as np
-from PySide6.QtCore import Qt, Signal, QSize, QSignalBlocker
-from PySide6.QtGui import QPalette, QStandardItem, QStandardItemModel
-from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout
+from PySide6.QtCore import Qt, Signal, QSize, QSignalBlocker, QRect
+from PySide6.QtGui import QPalette, QStandardItem, QStandardItemModel, QPainter, QColor
+from PySide6.QtWidgets import QWidget, QTreeView, QVBoxLayout, QProxyStyle, QStyle
 
 #  helpers
 class _BoolItem(QStandardItem):
@@ -11,6 +11,69 @@ class _BoolItem(QStandardItem):
         super().__init__(txt)
         self.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
         self.setCheckState(Qt.Unchecked)
+
+
+class _CheckIndicatorStyle(QProxyStyle):
+    def pixelMetric(self, metric, option=None, widget=None) -> int:
+        if metric in (QStyle.PM_IndicatorWidth, QStyle.PM_IndicatorHeight):
+            return 14
+        return super().pixelMetric(metric, option, widget)
+
+    def drawPrimitive(self, element, option, painter, widget=None) -> None:
+        if element == QStyle.PE_IndicatorItemViewItemCheck:
+            self._draw_item_check(option, painter)
+            return
+        super().drawPrimitive(element, option, painter, widget)
+
+    @staticmethod
+    def _draw_item_check(option, painter: QPainter) -> None:
+        rect = option.rect.adjusted(0, 0, -1, -1)
+        state = option.state
+
+        is_checked = bool(state & QStyle.State_On)
+        is_indeterminate = bool(state & QStyle.State_NoChange)
+        is_hover = bool(state & QStyle.State_MouseOver)
+        is_enabled = bool(state & QStyle.State_Enabled)
+
+        if is_checked:
+            bg = QColor("#9a9a9a")
+            border = QColor("#6f6f6f")
+        elif is_indeterminate:
+            bg = QColor("#a5a5a5")
+            border = QColor("#7a7a7a")
+        else:
+            bg = QColor("#d0d0d0")
+            border = QColor("#a0a0a0")
+
+        if is_hover:
+            bg = bg.lighter(108)
+        if not is_enabled:
+            bg = bg.lighter(115)
+            border = border.lighter(115)
+
+        painter.save()
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setPen(border)
+        painter.setBrush(bg)
+        painter.drawRoundedRect(rect, 3, 3)
+
+        if is_checked:
+            circle_d = max(4, int(min(rect.width(), rect.height()) * 0.45))
+            circle_rect = QRect(0, 0, circle_d, circle_d)
+            circle_rect.moveCenter(rect.center())
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QColor("#ffffff"))
+            painter.drawEllipse(circle_rect)
+        elif is_indeterminate:
+            bar_w = max(6, int(min(rect.width(), rect.height()) * 0.6))
+            bar_h = max(2, int(min(rect.width(), rect.height()) * 0.2))
+            bar_rect = QRect(0, 0, bar_w, bar_h)
+            bar_rect.moveCenter(rect.center())
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QColor("#f2f2f2"))
+            painter.drawRoundedRect(bar_rect, 1, 1)
+
+        painter.restore()
 
 
 class _TransparentView(QTreeView):
@@ -32,24 +95,6 @@ class _TransparentView(QTreeView):
         }
         QTreeView::item:selected {
             background: #303030;
-        }
-        QTreeView::indicator {
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-        }
-        /* Keep same shape as checked but lighter and without the check glyph */
-        QTreeView::indicator:unchecked {
-            background: #dcdcdc;
-            border: 1px solid #b0b0b0;
-            image: none;
-        }
-        QTreeView::indicator:unchecked:hover {
-            background: #e6e6e6;
-        }
-        QTreeView::indicator:checked {
-            background: #b3b3b3;
-            border: 1px solid #8a8a8a;
         }
 
         /* Scrollbar styling for QTreeView */
@@ -89,6 +134,7 @@ class _TransparentView(QTreeView):
         }
         """)
 
+        self.setStyle(_CheckIndicatorStyle(self.style()))
         self.setUniformRowHeights(True)
         self.setIndentation(12)
 

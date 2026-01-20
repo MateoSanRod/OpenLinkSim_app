@@ -14,6 +14,7 @@ from .Controler.app_controller import AppController
 from .Controler.input_compiler import Input
 from .Controler.view_controller import ViewPlotController
 from .UI.UI_utils.Test_splitter import SplitterToggle
+from .UI.UI_utils.graph_panel import GraphPanel
 from .UI.UI_utils.theme_manager import ThemeManager
 from .UI.mainwin_ui import Ui_MainWindow
 from .view.opengl_view_widget import ViewWidgetPlot
@@ -26,14 +27,13 @@ from .view.opengl_view_widget import ViewWidgetPlot
 # 4bar
 # txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_base.txt').read_text()
 # txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_input_links_v2.txt').read_text()
-# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_p4_7.txt').read_text()
 
 # saw
 # txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_triangle_articulated_2i.txt').read_text()
 
 
-txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_triangle_articulated.txt').read_text()
-# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/grua_quad_art.txt').read_text()
+# txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/test_triangle_articulated.txt').read_text()
+txt = Path('C:/Users/teoto/PycharmProjects/CDIM_app/Tests/grua_quad_art.txt').read_text()
 class MainApp(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -54,6 +54,12 @@ class MainApp(QMainWindow):
         self.opengl_widget = ViewWidgetPlot(self)
         self.ui.view_widget.layout().addWidget(self.opengl_widget)
 
+        # Right-side graph panel
+        self.graph_widget = GraphPanel(self)
+        if hasattr(self.ui, "right_layout"):
+            self.ui.right_layout.addWidget(self.graph_widget)
+        # Apply the current theme to the graph panel now that it exists
+        self.theme_manager.apply_graph_theme()
 
         # Event controller
         self.app_controller = AppController(self)
@@ -80,8 +86,6 @@ class MainApp(QMainWindow):
             center_y = screens[1].geometry().center().y() - self.frameGeometry().height() // 2
             self.move(center_x, center_y)
         # self.showMaximized()
-
-
 
 def main():
     fmt = QSurfaceFormat()

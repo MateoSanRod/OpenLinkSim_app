@@ -144,12 +144,6 @@ class Input(object):
             substituted_list.append(substituted_sublist)
         self.nodes_code = [str.join(', ', eq) for eq in substituted_list]
 
-    # ------------------------------------------------------------------
-    #  Links ─ recognise *multiple*       prismatic = node , angle [,abs]
-    # ------------------------------------------------------------------
-    # ----------------------------------------------------------------------
-    # Input.compile_links   (replace the whole previous body)
-    # ----------------------------------------------------------------------
     def compile_links(self):
         """Populate self.link_dict – one entry per ‘Link…’ block."""
         txt = self.input_multiline_string

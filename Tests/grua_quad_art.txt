@@ -12,6 +12,13 @@ phi_2, phi_3 = dep_var
 eq1 = l1 * cos(phi) + l2 * cos(phi_2) - l3 * cos(phi_3) - l4
 eq2 = l1 * sin(phi) + l2 * sin(phi_2) - l3 * sin(phi_3)
 
+$ VIEW OPTIONS $
+Angles:
+angle1: node=1, link=1, name=alpha
+Labels:
+node 1 = A
+link 2 = L2
+
 $ INITIAL CONDITIONS $
 
 Position:

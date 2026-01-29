@@ -46,10 +46,11 @@ class GraphPanel(QWidget):
         self._last_delta_time: float | None = None
         self._cursor_idx: int | None = None
         self._last_polled_frame: int | None = None
+        self._needs_render = False
 
         # Lightweight polling to move the cursor line without touching OpenGL code
         self._cursor_timer = QTimer(self)
-        self._cursor_timer.setInterval(32)  # ~24 FPS
+        self._cursor_timer.setInterval(42)  # ~24 FPS
         self._cursor_timer.timeout.connect(self._poll_cursor)
         self._cursor_timer.start()
 
@@ -139,15 +140,13 @@ class GraphPanel(QWidget):
         self._gather_force_series(frames)
         self._gather_independent_variable_series(frames)
 
-        self._populate_categories()
-        for section in self._sections:
-            self._populate_axis_selectors(section)
-            self._plot_current_selection(section)
-
         # store last dataset for new sections
         self._last_frames = frames
         self._last_delta_time = delta_time
-        self._update_cursor_lines()
+        if self._is_panel_open():
+            self._render_all_sections()
+        else:
+            self._needs_render = True
 
     # ------------------------------------------------------------------ #
     # Series extraction helpers
@@ -431,14 +430,18 @@ class GraphPanel(QWidget):
     def set_series_colors(self, mapping: Dict[str, str]) -> None:
         """Set category -> color hex mapping for lines (Paths, Velocity, etc.)."""
         self.series_colors = mapping or {}
-        for section in self._sections:
-            self._plot_current_selection(section)
-        self._update_cursor_lines()
+        if self._is_panel_open():
+            for section in self._sections:
+                self._plot_current_selection(section)
+            self._update_cursor_lines()
+        else:
+            self._needs_render = True
 
     def set_cursor(self, frame_idx: int | None) -> None:
         """Update vertical cursor line to match current frame."""
         self._cursor_idx = None if frame_idx is None else int(frame_idx)
-        self._update_cursor_lines()
+        if self._is_panel_open():
+            self._update_cursor_lines()
 
     # ------------------------------------------------------------------ #
     # Helpers
@@ -481,14 +484,36 @@ class GraphPanel(QWidget):
 
     def _poll_cursor(self) -> None:
         """Poll the OpenGL widget for current frame and update the vline efficiently."""
+        if not self.isVisible():
+            return
         app = self.app
         if app is None or not hasattr(app, "opengl_widget"):
             return
+        if not self._is_panel_open():
+            return
+        if self._needs_render and self._last_frames is not None:
+            self._render_all_sections()
         frame = getattr(app.opengl_widget, "current_frame", None)
         if frame is None or frame == self._cursor_idx or not self._series:
             return
         self._last_polled_frame = frame
         self.set_cursor(frame)
+
+    def _render_all_sections(self) -> None:
+        self._populate_categories()
+        for section in self._sections:
+            self._populate_axis_selectors(section)
+            self._plot_current_selection(section)
+        self._needs_render = False
+        self._update_cursor_lines()
+
+    def _is_panel_open(self) -> bool:
+        """Return True if the right splitter pane is visible (>0 size)."""
+        try:
+            sizes = self.app.ui.splitter.sizes()
+            return bool(sizes and sizes[-1] > 1)
+        except Exception:
+            return True  # default to updating if unknown
 
     def _populate_categories(self) -> None:
         current = None
@@ -530,8 +555,11 @@ class GraphPanel(QWidget):
         self._rebalance_splitter()
         # If we already have data loaded, populate selectors/plot immediately
         if self._last_frames is not None:
-            self._populate_axis_selectors(section)
-            self._plot_current_selection(section)
+            if self._is_panel_open():
+                self._populate_axis_selectors(section)
+                self._plot_current_selection(section)
+            else:
+                self._needs_render = True
             section.update_cursor_line(self._cursor_idx, self._series)
 
     def _remove_last_section(self) -> None:

@@ -20,6 +20,7 @@ class Input(object):
         self.substitute_constants()
         self.compile_geometric_eqs()
         self.initial_conditions()
+        self.compile_view_overlays()
         self.compile_nodes()
         self.compile_links()
         # print('Compiled')
@@ -92,6 +93,47 @@ class Input(object):
         type_indep_var_str = ''.join(re.findall(rf'{self.independent_variables}\s*=\s*(.*)', type_cond_input))
         self.type_indep_var = None if type_indep_var_str == '' else type_indep_var_str
         print(type_indep_var_str)
+
+    def compile_view_overlays(self):
+        self.overlay_angles = []
+        self.overlay_labels = {"nodes": {}, "links": {}}
+
+        view_flags = re.compile(r'\$ VIEW OPTIONS \$([\s\S]*?)(?:\$.*?|$)', re.IGNORECASE)
+        view_match = view_flags.search(self.input_multiline_string)
+        view_body = view_match.group(1).strip() if view_match else ""
+        if not view_body:
+            return
+
+        angles_match = re.search(r'Angles:\s*([\s\S]*?)(?=Labels:|$)', view_body, re.IGNORECASE)
+        if angles_match:
+            angle_lines = [ln.strip() for ln in angles_match.group(1).splitlines() if ln.strip()]
+            for ln in angle_lines:
+                # Allow comma or space separated key=val specs
+                parts = dict()
+                for chunk in re.split(r'[,\s]+', ln.split(':', 1)[-1]):
+                    if "=" in chunk:
+                        k, v = chunk.split("=", 1)
+                        parts[k.strip().lower()] = v.strip()
+                try:
+                    node_id = int(parts.get("node"))
+                    link_id = int(parts.get("link"))
+                    name = parts.get("name", f"angle_{node_id}_{link_id}")
+                except (TypeError, ValueError):
+                    continue
+                self.overlay_angles.append(
+                    {"node": node_id, "link": link_id, "name": name}
+                )
+
+        labels_match = re.search(r'Labels:\s*([\s\S]*?)$', view_body, re.IGNORECASE)
+        if labels_match:
+            label_lines = [ln.strip() for ln in labels_match.group(1).splitlines() if ln.strip()]
+            for ln in label_lines:
+                mm_node = re.match(r'node\s+(\d+)\s*=\s*(.+)', ln, re.IGNORECASE)
+                mm_link = re.match(r'link\s+(\d+)\s*=\s*(.+)', ln, re.IGNORECASE)
+                if mm_node:
+                    self.overlay_labels["nodes"][int(mm_node.group(1))] = mm_node.group(2).strip()
+                elif mm_link:
+                    self.overlay_labels["links"][int(mm_link.group(1))] = mm_link.group(2).strip()
 
     def compile_nodes(self):
         node_flags = re.compile(r'\$ NODES \$([\s\S]*?)(?:\$.*?|$)')

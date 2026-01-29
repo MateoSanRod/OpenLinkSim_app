@@ -2,7 +2,8 @@ import time
 
 import numpy as np
 from OpenGL.GL import *
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPointF
+from PySide6.QtGui import QPainter, QColor, QFontMetrics
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtWidgets import QVBoxLayout
 from ..UI.UI_utils.display_buttontree import VectorTree
@@ -29,6 +30,11 @@ class ViewWidgetPlot(QOpenGLWidget):
         self.t0 = 0
 
         self.simulation_data = None
+        self.overlay_angles = []
+        self.overlay_labels = {"nodes": {}, "links": {}}
+        self._link_label_centers = {}
+        self._link_base_lengths = {}
+        self._overlay_arc_cache = []
         self.vec_tree = None
         self.simu_range = 360
 
@@ -87,10 +93,15 @@ class ViewWidgetPlot(QOpenGLWidget):
         glClearColor(*self.color_palette["background-color"], 1.0)
 
         glEnable(GL_DEPTH_TEST)
-
         glEnable(GL_MULTISAMPLE)
         glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE)
         glEnable(GL_SAMPLE_SHADING)
+        glEnable(GL_LINE_SMOOTH)
+        glEnable(GL_POLYGON_SMOOTH)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
 
     def resizeGL(self, w, h):
         self.camera.set_aspect_ratio(w / h)
@@ -108,6 +119,7 @@ class ViewWidgetPlot(QOpenGLWidget):
         if not self.is_first_plot:
             self.makeCurrent()
 
+            
             if self.draw_cg_cross:
                 self._draw_cg_crosses()
             self._draw_nodes()
@@ -191,8 +203,10 @@ class ViewWidgetPlot(QOpenGLWidget):
                                   [self.simulation_space_range * .95, self.simulation_space_range],
                                   dot_on_origin_points=True)
 
+            # self._draw_overlay_labels()
             self._draw_link_fills()
             self._draw_links()
+            self._draw_overlay_arcs()
         glFinish()
         if self.frame_count % 30 == 0:
             print("Framerate:", int((1 / (time.time() - self.t0)) * 30), "fps")
@@ -654,6 +668,66 @@ class ViewWidgetPlot(QOpenGLWidget):
         glDrawArrays(GL_LINES, 0, self.num_link_vertices)
         glBindVertexArray(0)
 
+    def _draw_overlay_arcs(self):
+        """Draw angle overlays as small arcs at specified nodes."""
+        if not self._overlay_arc_cache or self.simulation_data is None:
+            return
+        fr = self.simulation_data[self.current_frame]
+        nodes = fr.get("node_coordinates")
+        link_angles = fr.get("link_angle")
+        if nodes is None or link_angles is None:
+            return
+
+        glLineWidth(3.0)
+        glColor3ub(6, 123, 194)
+        glDisable(GL_LINE_SMOOTH)
+        arc_labels = []
+        for ov in self._overlay_arc_cache:
+            node_idx = ov["node_idx"]
+            link_idx = ov["link_idx"]
+            if node_idx >= len(nodes) or link_idx >= len(link_angles):
+                continue
+            center = np.asarray(nodes[node_idx], dtype=float)
+            angle = float(link_angles[link_idx])
+            radius = ov["radius"]
+            px_per_world = self.width() / max(self.camera.view_range[0], 1e-6)
+            radius_px = max(1.0, radius * px_per_world)
+            steps = int(np.clip(radius_px * 0.25, 12, 60))
+            theta = np.linspace(0.0, angle, steps)
+            half_w_world = (2.0 / max(px_per_world, 1e-6))  # ~2 px thickness
+            r_outer = radius + half_w_world * 0.5
+            r_inner = max(0.0, radius - half_w_world * 0.5)
+            x_outer = center[0] + r_outer * np.cos(theta)
+            y_outer = center[1] + r_outer * np.sin(theta)
+            x_inner = center[0] + r_inner * np.cos(theta)
+            y_inner = center[1] + r_inner * np.sin(theta)
+            glBegin(GL_TRIANGLE_STRIP)
+            for xo, yo, xi, yi in zip(x_outer, y_outer, x_inner, y_inner):
+                glVertex2f(xo, yo)
+                glVertex2f(xi, yi)
+            glEnd()
+            glBegin(GL_LINES)
+            glVertex2f(center[0], center[1])
+            glVertex2f(center[0] + r_outer*1.2, center[1])
+            glEnd()
+            name = ov.get("name", "")
+            if name:
+                arc_labels.append((np.array([center[0] + r_outer*1.5, center[1]]), name))
+
+        if arc_labels:
+            painter = QPainter(self)
+            # painter.setRenderHint(QPainter.TextAntialiasing, True)
+            painter.beginNativePainting()
+            font = self.app.ui.plainTextEdit.font()
+            painter.setFont(font)
+            painter.setPen(QColor(6, 123, 194))
+            for widget_pos, text in arc_labels:
+                pt = self._world_to_screen(widget_pos)
+                if pt is None:
+                    continue
+                painter.drawText(pt.x(), pt.y(), text)
+            painter.end()
+
     def draw_aa_arrow(self, x_tail, y_tail, x_tip, y_tip,
                       shaft_half_px=1.25,
                       head_len_px=7,
@@ -721,6 +795,137 @@ class ViewWidgetPlot(QOpenGLWidget):
         if not tris:
             return np.empty((0, 2), dtype=np.float32)
         return np.concatenate(tris, axis=0)
+
+    def _prepare_overlays(self):
+        """Cache overlay data from the input for rendering."""
+        self.overlay_angles = getattr(self.app.input, "overlay_angles", []) or []
+        self.overlay_labels = getattr(self.app.input, "overlay_labels", {"nodes": {}, "links": {}}) or {"nodes": {}, "links": {}}
+        self._link_label_centers = {}
+        self._link_base_lengths = {}
+        self._overlay_arc_cache = []
+
+        if self.simulation_data is None:
+            return
+        fr0 = self.simulation_data[0]
+        link_lines = fr0.get("link_line_list") or []
+
+        for lid_str, label in self.overlay_labels.get("links", {}).items():
+            try:
+                lid = int(lid_str)
+            except Exception:
+                lid = lid_str if isinstance(lid_str, int) else None
+            if lid is None:
+                continue
+            idx = lid - 1
+            if idx < 0 or idx >= len(link_lines):
+                continue
+            pts = np.asarray(link_lines[idx], dtype=float)
+            if len(pts) == 0:
+                continue
+            center = pts.mean(axis=0)
+            if len(pts) >= 2:
+                base_len = np.linalg.norm(pts[1] - pts[0])
+            else:
+                base_len = max(self.camera.view_range) * 0.05
+            self._link_label_centers[idx] = center
+            self._link_base_lengths[idx] = base_len
+
+        # Precompute arc helpers (radius etc., samples chosen per frame based on zoom)
+        if self.overlay_angles:
+            default_radius = max(self.camera.view_range) * 0.02
+            for ov in self.overlay_angles:
+                node_idx = int(ov.get("node", 0)) - 1
+                link_idx = int(ov.get("link", 0)) - 1
+                if node_idx < 0 or link_idx < 0 or link_idx >= len(link_lines):
+                    continue
+                line = np.asarray(link_lines[link_idx], dtype=float)
+                if line.shape[0] >= 2:
+                    seg_len = np.linalg.norm(line[1] - line[0])
+                else:
+                    seg_len = default_radius * 5
+                radius = max(seg_len * 0.25, default_radius)
+                self._overlay_arc_cache.append(
+                    {
+                        "node_idx": node_idx,
+                        "link_idx": link_idx,
+                        "radius": radius,
+                        "name": ov.get("name", ""),
+                    }
+                )
+
+    def _world_to_screen(self, pos: np.ndarray) -> QPointF | None:
+        """Convert world (model) coordinates to widget pixel coordinates."""
+        if pos is None or self.width() <= 0 or self.height() <= 0:
+            return None
+        cx, cy = self.camera.view_center
+        rx, ry = self.camera.view_range / 2
+        left, right = cx - rx, cx + rx
+        bottom, top = cy - ry, cy + ry
+        x = (pos[0] - left) / (right - left) * self.width()
+        y = (top - pos[1]) / (top - bottom) * self.height()
+        return QPointF(x, y)
+
+    def _draw_overlay_labels(self):
+        """Draw node/link labels using QPainter, rotating link labels with the link."""
+        if not self.overlay_labels or self.simulation_data is None:
+            return
+        fr = self.simulation_data[self.current_frame]
+        nodes = fr.get("node_coordinates")
+        link_angles = fr.get("link_angle")
+        if nodes is None:
+            return
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        font = painter.font()
+        font.setPointSize(10)
+        painter.setFont(font)
+        fm = QFontMetrics(font)
+
+        node_color = QColor(*self.color_palette["node-color"])
+        link_color = QColor(*self.color_palette["link-color"])
+
+        # Node labels follow the node position each frame
+        for nid_str, label in self.overlay_labels.get("nodes", {}).items():
+            try:
+                nid = int(nid_str) - 1
+            except Exception:
+                continue
+            if nid < 0 or nid >= len(nodes):
+                continue
+            pos = self._world_to_screen(nodes[nid])
+            if pos is None:
+                continue
+            w = fm.horizontalAdvance(label) + 6
+            h = fm.height() + 4
+            painter.setPen(node_color)
+            painter.drawText(pos.x() - w / 2, pos.y() - h / 2, w, h, Qt.AlignCenter, label)
+
+        # Link labels stay at precomputed centers, rotate with link angle
+        for lid, label in self.overlay_labels.get("links", {}).items():
+            try:
+                idx = int(lid) - 1
+            except Exception:
+                continue
+            center = self._link_label_centers.get(idx)
+            if center is None:
+                continue
+            pos = self._world_to_screen(center)
+            if pos is None:
+                continue
+            angle_deg = 0.0
+            if link_angles is not None and 0 <= idx < len(link_angles):
+                angle_deg = np.degrees(link_angles[idx])
+            w = fm.horizontalAdvance(label) + 6
+            h = fm.height() + 4
+            painter.save()
+            painter.translate(pos)
+            painter.rotate(-angle_deg)
+            painter.setPen(link_color)
+            painter.drawText(-w / 2, -h / 2, w, h, Qt.AlignCenter, label)
+            painter.restore()
+
+        painter.end()
 
     def _draw_vector(self, color, origin_points, vectors, scale_vector, dot_on_origin_points=False):
         glColor3ub(*color)
@@ -827,6 +1032,7 @@ class ViewWidgetPlot(QOpenGLWidget):
         self.display_simulation = True
         self.app.view_controller._is_simulation_running = True
         self.simulation_data = data
+        self._prepare_overlays()
         self.current_frame = 0
         self.timer = self.startTimer(0)
         self.initial_time = time.time()
@@ -847,6 +1053,7 @@ class ViewWidgetPlot(QOpenGLWidget):
         self.reset_widget_buffers()
         self.display_simulation = False
         self.simulation_data = data
+        self._prepare_overlays()
         self.current_frame = 0
         data = self.simulation_data[self.current_frame]
         self._setup_link_buffers()

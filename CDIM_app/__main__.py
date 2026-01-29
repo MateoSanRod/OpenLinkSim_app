@@ -69,7 +69,7 @@ class MainApp(QMainWindow):
         self.view_controller = ViewPlotController(self.opengl_widget,self)
         self.ui.view_widget.installEventFilter(self.view_controller)
 
-        self.move_to_second_screen()
+        # self.move_to_second_screen()
 
 
         # Default window parameters
@@ -78,14 +78,15 @@ class MainApp(QMainWindow):
         self.right_splitter_button = SplitterToggle(self, self.ui.right_splitter_button, "right")
 
 
-    def move_to_second_screen(self):
-        app = qtw.QApplication.instance()
-        screens = app.screens()
-        if len(screens) > 1:
-            center_x = screens[1].geometry().center().x() - self.frameGeometry().width() // 2
-            center_y = screens[1].geometry().center().y() - self.frameGeometry().height() // 2
-            self.move(center_x, center_y)
+    # def move_to_second_screen(self):
+    #     app = qtw.QApplication.instance()
+    #     screens = app.screens()
+    #     if len(screens) > 1:
+    #         center_x = screens[1].geometry().center().x() - self.frameGeometry().width() // 2
+    #         center_y = screens[1].geometry().center().y() - self.frameGeometry().height() // 2
+    #         self.move(center_x, center_y)
         # self.showMaximized()
+
 
 def main():
     fmt = QSurfaceFormat()

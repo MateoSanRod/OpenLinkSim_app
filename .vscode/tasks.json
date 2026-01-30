@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Current File (Python)",
+            "type": "shell",
+            "command": "python",
+            "args": ["${file}"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Main (__main__.py)",
+            "type": "shell",
+            "command": "python",
+            "args": ["${workspaceFolder}/CDIM_app/__main__.py"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

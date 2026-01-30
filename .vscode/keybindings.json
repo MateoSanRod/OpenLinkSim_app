@@ -1,0 +1,14 @@
+[
+    {
+        "key": "shift+f5",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Run Current File (Python)",
+        "when": "workspaceFolderCount != 0"
+    },
+    {
+        "key": "ctrl+shift+f5",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Run Main (__main__.py)",
+        "when": "workspaceFolderCount != 0"
+    }
+]

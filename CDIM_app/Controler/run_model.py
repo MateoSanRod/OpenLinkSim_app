@@ -1,5 +1,5 @@
-from CDIM_app.Model.model import Simulation
-from view.opengl_view_widget import ViewWidgetPlot
+from ..Model.model import Simulation
+from ..view.opengl_view_widget import ViewWidgetPlot
 
 
 def run_image(app, view_widget_plot, compiled_input):
@@ -13,6 +13,9 @@ def run_image(app, view_widget_plot, compiled_input):
     view_widget_plot.plot_image(image)
     app.theme_manager.deactivate_ani_controlls()
     app.theme_manager.activate_preview_controlls()
+    if hasattr(app, "graph_widget"):
+        app.graph_widget.load_from_simulation(image, simulation.delta_time)
+
 
 
 def run_simulation(app, view_widget_plot, compiled_input):
@@ -50,4 +53,6 @@ def run_simulation(app, view_widget_plot, compiled_input):
     app.opengl_widget._set_first_plot_limits(result)
     view_widget_plot.plot_simu(result)
     app.theme_manager.activate_ani_controlls()
+    if hasattr(app, "graph_widget"):
+        app.graph_widget.load_from_simulation(result, simulation.delta_time)
 
